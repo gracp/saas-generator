@@ -42,7 +42,7 @@ export async function createCheckoutSession({
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
     customer_email: userEmail,
-    metadata: { userId },
+    metadata: { userId, userEmail },
     success_url: `${returnUrl}?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: returnUrl,
   });
@@ -87,4 +87,11 @@ export async function getSubscription(customerId: string) {
     limit: 1,
   });
   return subscriptions.data[0] ?? null;
+}
+
+// ─── Determine plan from price ID ───────────────────────
+export function planFromPriceId(priceId: string): "free" | "maker" | "studio" {
+  if (priceId === process.env.STRIPE_PRICE_MAKER) return "maker";
+  if (priceId === process.env.STRIPE_PRICE_STUDIO) return "studio";
+  return "free";
 }

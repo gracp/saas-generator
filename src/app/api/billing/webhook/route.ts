@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { constructWebhookEvent } from "@/lib/stripe-app";
+import { constructWebhookEvent, planFromPriceId, getSubscription } from "@/lib/stripe-app";
+import { dbUpdateUserPlan, dbGetUserByCustomerId } from "@/lib/db";
 import type Stripe from "stripe";
 
 // POST /api/billing/webhook — handle Stripe webhook events
@@ -20,16 +21,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: message }, { status: 400 });
   }
 
-  // Handle events
   switch (event.type) {
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
-      const userId = session.metadata?.userId;
+      const userEmail = session.metadata?.userEmail;
       const customerId = session.customer as string;
 
-      if (userId && customerId) {
-        // TODO: In DB — update user record with customerId and subscription status
-        console.log(`[Stripe Webhook] checkout.completed: user=${userId} customer=${customerId}`);
+      if (userEmail && customerId) {
+        try {
+          const subscription = await getSubscription(customerId);
+          const priceId = subscription?.items.data[0]?.price.id ?? "";
+          const plan = planFromPriceId(priceId);
+          await dbUpdateUserPlan(userEmail, customerId, plan);
+          console.log(`[Stripe Webhook] User ${userEmail} subscribed to ${plan}`);
+        } catch (err) {
+          console.error("[Stripe Webhook] checkout.completed failed:", err);
+        }
       }
       break;
     }
@@ -38,22 +45,27 @@ export async function POST(request: Request) {
       const subscription = event.data.object as Stripe.Subscription;
       const customerId = subscription.customer as string;
 
-      // TODO: In DB — mark user's subscription as cancelled
-      console.log(`[Stripe Webhook] subscription.deleted: customer=${customerId}`);
+      try {
+        // Look up user by stripeCustomerId and downgrade to free
+        const user = await dbGetUserByCustomerId(customerId);
+        if (user) {
+          await dbUpdateUserPlan(user.email, customerId, "free");
+          console.log(`[Stripe Webhook] User ${user.email} downgraded to free`);
+        }
+      } catch (err) {
+        console.error("[Stripe Webhook] subscription.deleted failed:", err);
+      }
       break;
     }
 
     case "invoice.payment_failed": {
       const invoice = event.data.object as Stripe.Invoice;
       const customerId = invoice.customer as string;
-
-      // TODO: In DB — mark user's subscription as past_due
-      console.log(`[Stripe Webhook] invoice.payment_failed: customer=${customerId}`);
+      console.log(`[Stripe Webhook] Payment failed for customer ${customerId}`);
       break;
     }
 
     default:
-      // Unhandled event type
       break;
   }
 
