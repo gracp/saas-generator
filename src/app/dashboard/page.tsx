@@ -1,11 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  StatsHeader,
-  ProjectCard,
-  type ProjectCardData,
-} from "@/components/dashboard/project-card";
+import { StatsHeader } from "@/components/dashboard/stats-header";
+import { ProjectCard, type ProjectCardData } from "@/components/dashboard/project-card";
 import { NewProjectSheet } from "@/components/dashboard/new-project-sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -14,10 +11,10 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/generate")
+    fetch("/api/projects")
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) setProjects(data.projects);
+        if (data.success) setProjects(data.projects ?? []);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -40,7 +37,10 @@ export default function DashboardPage() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="space-y-3 rounded-xl border border-zinc-800 bg-zinc-900 p-6">
+            <div
+              key={i}
+              className="space-y-3 rounded-xl border border-zinc-800 bg-zinc-900 p-6"
+            >
               <Skeleton className="h-4 w-32 bg-zinc-800" />
               <Skeleton className="h-3 w-48 bg-zinc-800" />
               <Skeleton className="h-1.5 w-full bg-zinc-800" />
