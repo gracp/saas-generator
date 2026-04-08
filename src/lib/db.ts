@@ -62,6 +62,15 @@ export async function dbUpdateUserPlan(
   });
 }
 
+export async function dbUpdateUser(
+  email: string,
+  data: Partial<User>
+): Promise<User> {
+  const prisma = await getPrisma();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return prisma.user.update({ where: { email }, data: data as any });
+}
+
 // ─── Project CRUD ────────────────────────────────────────
 
 export async function dbCreateProject({
