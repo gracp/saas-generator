@@ -5,7 +5,7 @@
  * whatever GitHub auth is configured on the host.
  */
 
-import { execSync } from "child_process";
+import { execSync, spawnSync } from "child_process";
 
 const GH = "gh";
 
@@ -252,8 +252,8 @@ export function setRepoSecret(
   value: string
 ): void {
   // Pipe secret value to gh secret set to avoid shell escaping issues
-  const { spawnSync } = require("child_process");
   spawnSync("gh", ["secret", "set", name, "--repo", repoSlug, "--body", value], {
+    encoding: "utf-8",
     stdio: "pipe",
   });
 }
