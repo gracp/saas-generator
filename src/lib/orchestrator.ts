@@ -16,6 +16,7 @@ import {
   addEvent,
   type SaaSProject,
 } from "./projects";
+import { dbConnect, dbUpdateProject } from "./db";
 import type { GeneratedIdea, ResearchResult } from "./projects";
 import { searchReddit, searchTrends, synthesizeResearch } from "./research";
 import { generateIdeasFromResearch } from "./ideas";
@@ -208,6 +209,8 @@ export async function deployProject(projectId: string): Promise<{ url: string }>
   });
 
   addEvent(projectId, `Deployed to Vercel: ${deployedUrl}`, "success");
+  // Persist to DB if connected (fallback to in-memory store)
+  try { await dbConnect(); await dbUpdateProject(projectId, { vercelUrl: deployedUrl, status: "live" }); } catch {}
   updateProject(projectId, { vercelUrl: deployedUrl });
 
   transitionStatus(projectId, "live", "🚀 Project is live!", "success");

@@ -112,7 +112,7 @@ function Hero() {
         {/* CTAs */}
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 reveal reveal-delay-3">
           <a
-            href="#pricing"
+            href="/dashboard"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-violet-500 text-white font-semibold text-sm hover:bg-violet-400 transition-colors glow-violet-sm"
           >
             {copy.hero.ctaPrimary}
