@@ -230,13 +230,20 @@ export async function spawnCodeGenerationAgents(
       WORKTREE_PATH: worktreePath,
     });
 
-    // Spawn agent via OpenClaw sessions_spawn
-    const session = await sessions_spawn({
+    // sessions_spawn is injected by OpenClaw at runtime — cast to function to satisfy TS
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const spawnFn = (sessions_spawn as any) as (
+      opts: { mode: string; runtime: string; task: string; cwd?: string }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) => Promise<any>;
+
+    const session = await spawnFn({
       mode: "run",
       runtime: "subagent",
       task: prompt,
       cwd: worktreePath,
     });
+    void session;
 
     addEvent(
       project.id,
