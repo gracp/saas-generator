@@ -6,18 +6,29 @@ import {
   researchAndGenerateIdeas,
 } from "@/lib/orchestrator";
 import { getAllProjects } from "@/lib/projects";
+import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 
 // POST /api/generate — start a new SaaS project
 // NOTE: This is a long-running operation (research + idea generation).
 // It can take 1-3 minutes. Clients should set a long timeout.
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as { id?: string })?.id ?? ip;
+  const limited = rateLimit({ key: `generate:${userId}`, ...RATE_LIMITS.generate });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { success: false, error: "Too many generation requests. Please try again later." },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfter), "X-RateLimit-Remaining": "0" } }
+    );
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5 * 60 * 1000);
 
   try {
-    const session = await getServerSession(authOptions);
     // Get userId from session (system placeholder if not authed yet)
-    const userId = (session?.user as { id?: string })?.id ?? undefined;
+    const uid = (session?.user as { id?: string })?.id ?? undefined;
 
     const body = await request.json();
     const { projectName, niche, description } = body;
@@ -34,7 +45,7 @@ export async function POST(request: Request) {
       projectName,
       niche,
       description,
-      userId,
+      userId: uid,
     });
 
     // Step 2: Research + generate ideas

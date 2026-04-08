@@ -3,15 +3,18 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { ProjectDetail } from "@/components/dashboard/project-detail";
-import type { SaaSProject } from "@/lib/projects";
+import { GenerationProgress } from "@/components/dashboard/generation-progress";
+import type { SaaSProject, ProjectStatus } from "@/lib/projects";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const POLL_INTERVAL = 5000; // 5 seconds
 
 // Terminal statuses — stop polling
-const TERMINAL = new Set(["idle", "live"]);
+const TERMINAL = new Set<ProjectStatus>(["idle", "live"]);
 // Interactive statuses — stop polling, wait for user
-const AWAITING_INPUT = new Set(["selecting"]);
+const AWAITING_INPUT = new Set<ProjectStatus>(["selecting"]);
+// Show generation progress for these statuses
+const ACTIVE_STATUSES = new Set<ProjectStatus>(["researching", "generating_ideas", "building", "deploying"]);
 
 export default function ProjectPage() {
   const params = useParams();
@@ -72,5 +75,14 @@ export default function ProjectPage() {
     );
   }
 
-  return <ProjectDetail project={project} />;
+  const isActive = ACTIVE_STATUSES.has(project.status);
+
+  return (
+    <div className="space-y-6">
+      {isActive && (
+        <GenerationProgress status={project.status} projectName={project.name} />
+      )}
+      <ProjectDetail project={project} />
+    </div>
+  );
 }

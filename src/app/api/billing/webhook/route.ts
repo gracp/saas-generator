@@ -1,10 +1,21 @@
 import { NextResponse } from "next/server";
 import { constructWebhookEvent, planFromPriceId, getSubscription } from "@/lib/stripe-app";
 import { dbUpdateUserPlan, dbGetUserByCustomerId } from "@/lib/db";
+import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 import type Stripe from "stripe";
 
 // POST /api/billing/webhook — handle Stripe webhook events
 export async function POST(request: Request) {
+  // Rate limit webhook endpoint
+  const ip = getClientIp(request);
+  const limited = rateLimit({ key: `webhook:${ip}`, ...RATE_LIMITS.webhook });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many webhook requests" },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfter) } }
+    );
+  }
+
   const signature = request.headers.get("stripe-signature");
   if (!signature) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
