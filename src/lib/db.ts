@@ -1,18 +1,18 @@
 /**
  * Database Layer — Prisma + PostgreSQL (Supabase)
  *
- * Setup:
- *   1. npm install
- *   2. npx prisma generate       # generate Prisma client
- *   3. npx prisma migrate dev    # run migrations (requires DATABASE_URL)
- *
- * The DB layer is a drop-in replacement for the in-memory Map in projects.ts.
- * Set DATABASE_URL in .env to enable persistence.
+ * Setup (after DATABASE_URL is set in .env):
+ *   npx prisma generate    # generate Prisma client
+ *   npx prisma migrate dev # run migrations
  */
 
 import type { PrismaClient as PrismaClientType } from "@prisma/client";
+import type { Project, User } from "@prisma/client";
 
 let _prisma: PrismaClientType | null = null;
+
+// System user ID used when auth is not yet wired
+const SYSTEM_USER_ID = "system-user";
 
 async function getPrisma(): Promise<PrismaClientType> {
   if (_prisma) return _prisma;
@@ -21,58 +21,94 @@ async function getPrisma(): Promise<PrismaClientType> {
   return _prisma;
 }
 
+// ─── User CRUD ──────────────────────────────────────────
+
+export async function dbUpsertUser({
+  email,
+  name,
+  image,
+}: {
+  email: string;
+  name?: string | null;
+  image?: string | null;
+}): Promise<User> {
+  const prisma = await getPrisma();
+  return prisma.user.upsert({
+    where: { email },
+    update: { name, image },
+    create: { email, name, image, plan: "free" },
+  });
+}
+
+export async function dbGetUser(email: string): Promise<User | null> {
+  const prisma = await getPrisma();
+  return prisma.user.findUnique({ where: { email } });
+}
+
 // ─── Project CRUD ────────────────────────────────────────
 
-export async function dbCreateProject(name: string) {
+export async function dbCreateProject({
+  name,
+  userId,
+}: {
+  name: string;
+  userId?: string;
+}): Promise<Project> {
   const prisma = await getPrisma();
+  const uid = userId ?? SYSTEM_USER_ID;
   return prisma.project.create({
     data: {
       name,
+      userId: uid,
       status: "idle",
-      events: { createdAt: new Date().toISOString(), type: "info", message: "Project created" },
+      events: [],
     },
   });
 }
 
-export async function dbGetProject(id: string) {
+export async function dbGetProject(id: string): Promise<Project | null> {
   const prisma = await getPrisma();
   return prisma.project.findUnique({ where: { id } });
 }
 
-export async function dbGetAllProjects() {
+export async function dbGetAllProjects(opts?: { userId?: string }): Promise<Project[]> {
   const prisma = await getPrisma();
-  return prisma.project.findMany({ orderBy: { createdAt: "desc" } });
+  const where = opts?.userId ? { userId: opts.userId } : {};
+  return prisma.project.findMany({ where, orderBy: { createdAt: "desc" } });
 }
 
-export async function dbUpdateProject(id: string, data: Record<string, unknown>) {
-  const prisma = await getPrisma();
-  return prisma.project.update({ where: { id }, data: data as Parameters<typeof prisma.project.update>[0]["data"] });
-}
-
-export async function dbDeleteProject(id: string) {
-  const prisma = await getPrisma();
-  return prisma.project.delete({ where: { id } });
-}
-
-export async function dbAddEvent(
+export async function dbUpdateProject(
   id: string,
-  message: string,
-  type: "info" | "success" | "warning" | "error"
-) {
-  const project = await dbGetProject(id);
-  if (!project) return;
-  const events = (project.events as Array<{ type: string; message: string; timestamp: string }>) ?? [];
-  events.push({ type, message, timestamp: new Date().toISOString() });
-  return dbUpdateProject(id, { events });
+  data: Partial<Project>
+): Promise<Project> {
+  const prisma = await getPrisma();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return prisma.project.update({ where: { id }, data: data as any });
 }
 
-export async function dbConnect() {
+export async function dbDeleteProject(id: string): Promise<void> {
+  const prisma = await getPrisma();
+  await prisma.project.delete({ where: { id } });
+}
+
+export async function dbIncrementProjectCount(userId: string): Promise<void> {
+  const prisma = await getPrisma();
+  await prisma.user.update({
+    where: { id: userId },
+    data: { projectCount: { increment: 1 } },
+  });
+}
+
+// ─── Connection management ────────────────────────────────
+
+export async function dbConnect(): Promise<void> {
   const prisma = await getPrisma();
   await prisma.$connect();
 }
 
-export async function dbDisconnect() {
+export async function dbDisconnect(): Promise<void> {
   if (_prisma) {
-    await (_prisma as PrismaClientType).$disconnect();
+    await _prisma.$disconnect();
+    _prisma = null;
   }
 }

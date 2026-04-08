@@ -17,7 +17,7 @@ import {
   addEvent,
   type SaaSProject,
 } from "./projects";
-import { dbConnect, dbUpdateProject } from "./db";
+import { dbConnect, dbUpdateProject, dbCreateProject } from "./db";
 import type { GeneratedIdea, ResearchResult } from "./projects";
 import { searchReddit, searchTrends, synthesizeResearch } from "./research";
 import { generateIdeasFromResearch } from "./ideas";
@@ -43,9 +43,14 @@ export interface GenerateResult {
 // ─── Pipeline Steps ─────────────────────────────────────
 
 export async function initializeProject(
-  opts: GenerateOptions
+  opts: GenerateOptions & { userId?: string }
 ): Promise<GenerateResult> {
   const project = createProject(opts.projectName);
+
+  // Persist to DB (non-blocking — errors are logged but don't break the flow)
+  dbCreateProject({ name: opts.projectName, userId: opts.userId }).catch(
+    (err) => console.error("[DB] Failed to create project in DB:", err)
+  );
 
   transitionStatus(project.id, "building", "Creating GitHub repository...", "info");
 
