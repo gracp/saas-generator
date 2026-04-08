@@ -1,13 +1,5 @@
 /**
  * Orchestrator Engine — manages the full generate → build → launch pipeline
- *
- * Coordinates:
- * - GitHub repo creation and management
- * - Real market research (Exa AI)
- * - Idea generation (combinatorial + scoring)
- * - Code generation (OpenClaw agents on feature worktrees)
- * - Code review per PR
- * - Vercel deployment
  */
 
 import { execSync } from "child_process";
@@ -28,6 +20,7 @@ import type { GeneratedIdea, ResearchResult } from "./projects";
 import { searchReddit, searchTrends, synthesizeResearch } from "./research";
 import { generateIdeasFromResearch } from "./ideas";
 import { spawnCodeGenerationAgents } from "./code-generator";
+import { fullDeploy } from "./vercel";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -44,11 +37,8 @@ export interface GenerateResult {
   issues: Array<{ number: number; title: string; url: string }>;
 }
 
-// ─── Pipeline Steps ──────────────────────────────────────
+// ─── Pipeline Steps ─────────────────────────────────────
 
-/**
- * Step 1: Initialize project + create GitHub repo
- */
 export async function initializeProject(
   opts: GenerateOptions
 ): Promise<GenerateResult> {
@@ -96,9 +86,6 @@ export async function initializeProject(
   };
 }
 
-/**
- * Step 2: Research niche and generate ideas
- */
 export async function researchAndGenerateIdeas(
   projectId: string,
   niche?: string
@@ -144,9 +131,6 @@ export async function researchAndGenerateIdeas(
   return { research, ideas };
 }
 
-/**
- * Step 3: User selects an idea → spawn code generation agents
- */
 export async function selectIdeaAndBuild(
   projectId: string,
   ideaIndex: number
@@ -199,7 +183,7 @@ export async function selectIdeaAndBuild(
   transitionStatus(
     projectId,
     "building",
-    `${codeGenResult.branches.length} agents spawned — building in parallel`,
+    `${codeGenResult.branches.length} agents spawned`,
     "info"
   );
 
@@ -209,19 +193,24 @@ export async function selectIdeaAndBuild(
   };
 }
 
-/**
- * Step 4: Deploy to Vercel
- */
 export async function deployProject(projectId: string): Promise<{ url: string }> {
   transitionStatus(projectId, "deploying", "Connecting to Vercel...", "info");
 
   const project = updateProject(projectId, {})!;
-  const vercelUrl = `https://${project.name.toLowerCase().replace(/\s+/g, "-")}.vercel.app`;
+  const { url: deployedUrl } = await fullDeploy({
+    name: project.name,
+    githubRepo: project.githubRepo ?? "",
+    envVars: {
+      EXA_API_KEY: process.env.EXA_API_KEY ?? "",
+      STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY ?? "",
+    },
+    token: process.env.VERCEL_API_TOKEN,
+  });
 
-  addEvent(projectId, `Deployed to Vercel: ${vercelUrl}`, "success");
-  updateProject(projectId, { vercelUrl });
+  addEvent(projectId, `Deployed to Vercel: ${deployedUrl}`, "success");
+  updateProject(projectId, { vercelUrl: deployedUrl });
 
   transitionStatus(projectId, "live", "🚀 Project is live!", "success");
 
-  return { url: vercelUrl };
+  return { url: deployedUrl };
 }
