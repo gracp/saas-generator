@@ -10,6 +10,7 @@
  * - Vercel deployment
  */
 
+import { execSync } from "child_process";
 import {
   createRepo,
   createIssue,
@@ -289,7 +290,7 @@ export async function selectIdeaAndBuild(
   // Clone the repo locally if needed
   const repoDir = `/tmp/saas-gen-${project.id}`;
   try {
-    require("child_process").execSync(
+    execSync(
       `git clone https://github.com/${repoSlug}.git ${repoDir}`,
       { stdio: "pipe" }
     );
