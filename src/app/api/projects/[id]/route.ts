@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getProject } from "@/lib/projects";
+import { getProject, deleteProject } from "@/lib/projects";
 import { selectIdeaAndBuild, deployProject } from "@/lib/orchestrator";
 
 // GET /api/projects/[id] — get a single project
@@ -69,4 +69,19 @@ export async function POST(
       { status: 500 }
     );
   }
+}
+
+// DELETE /api/projects/[id] — delete a project
+export async function DELETE(
+  _request: Request,
+  { params }: { params: { id: string } }
+) {
+  const existed = deleteProject(params.id);
+  if (!existed) {
+    return NextResponse.json(
+      { success: false, error: "Project not found" },
+      { status: 404 }
+    );
+  }
+  return NextResponse.json({ success: true });
 }

@@ -183,3 +183,7 @@ export function updateProject(
   projects.set(projectId, project);
   return project;
 }
+
+export function deleteProject(projectId: string): boolean {
+  return projects.delete(projectId);
+}
