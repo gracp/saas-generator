@@ -596,7 +596,7 @@ function FinalCTA() {
         </p>
         <div className="reveal reveal-delay-2">
           <a
-            href="#pricing"
+            href="/waitlist"
             className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-violet-500 text-white font-semibold text-base hover:bg-violet-400 transition-colors glow-violet"
           >
             {copy.finalCta.cta}

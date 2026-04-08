@@ -115,6 +115,22 @@ export async function dbConnect(): Promise<void> {
   await prisma.$connect();
 }
 
+// ─── Waitlist ──────────────────────────────────────────────────
+
+export async function dbAddWaitlistEntry(email: string): Promise<void> {
+  const prisma = await getPrisma();
+  await prisma.waitlist.upsert({
+    where: { email },
+    update: {},
+    create: { email },
+  });
+}
+
+export async function dbGetWaitlistCount(): Promise<number> {
+  const prisma = await getPrisma();
+  return prisma.waitlist.count();
+}
+
 export async function dbDisconnect(): Promise<void> {
   if (_prisma) {
     await _prisma.$disconnect();
