@@ -5,7 +5,7 @@
  * - GitHub repo creation and management
  * - Real market research (Exa AI)
  * - Idea generation (combinatorial + scoring)
- * - Code generation (specialist agents on feature branches)
+ * - Code generation (OpenClaw agents on feature worktrees)
  * - Code review per PR
  * - Vercel deployment
  */
@@ -27,6 +27,7 @@ import {
 import type { GeneratedIdea, ResearchResult } from "./projects";
 import { searchReddit, searchTrends, synthesizeResearch } from "./research";
 import { generateIdeasFromResearch } from "./ideas";
+import { spawnCodeGenerationAgents } from "./code-generator";
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -53,12 +54,7 @@ export async function initializeProject(
 ): Promise<GenerateResult> {
   const project = createProject(opts.projectName);
 
-  transitionStatus(
-    project.id,
-    "building",
-    "Creating GitHub repository...",
-    "info"
-  );
+  transitionStatus(project.id, "building", "Creating GitHub repository...", "info");
 
   const repo = createRepo({
     name: opts.projectName.toLowerCase().replace(/\s+/g, "-"),
@@ -119,11 +115,7 @@ export async function researchAndGenerateIdeas(
 
   const research = await synthesizeResearch(targetNiche, redditPosts, trends);
 
-  addEvent(
-    projectId,
-    `Research complete for "${targetNiche}"`,
-    "success"
-  );
+  addEvent(projectId, `Research complete for "${targetNiche}"`, "success");
   transitionStatus(
     projectId,
     "generating_ideas",
@@ -153,7 +145,7 @@ export async function researchAndGenerateIdeas(
 }
 
 /**
- * Step 3: User selects an idea → begin code generation
+ * Step 3: User selects an idea → spawn code generation agents
  */
 export async function selectIdeaAndBuild(
   projectId: string,
@@ -169,7 +161,7 @@ export async function selectIdeaAndBuild(
   transitionStatus(
     projectId,
     "building",
-    `Selected idea: ${selectedIdea.name} — starting build...`,
+    `Selected idea: ${selectedIdea.name} — spawning agents...`,
     "info"
   );
 
@@ -191,51 +183,30 @@ export async function selectIdeaAndBuild(
   }
 
   const branches = [
-    {
-      name: "feat/scaffolding",
-      task: "Project setup — Next.js, Tailwind, auth, database",
-    },
-    {
-      name: "feat/landing-page",
-      task: `Landing page for ${selectedIdea.name} — ${selectedIdea.tagline}`,
-    },
-    {
-      name: "feat/stripe-billing",
-      task: `Stripe billing — ${selectedIdea.monetization}`,
-    },
-    {
-      name: "feat/core-feature",
-      task: `Core feature: ${selectedIdea.coreFeature}`,
-    },
+    { name: "feat/scaffolding", task: "Project setup" },
+    { name: "feat/landing-page", task: `Landing page for ${selectedIdea.name}` },
+    { name: "feat/stripe-billing", task: "Stripe billing" },
+    { name: "feat/core-feature", task: `Core feature: ${selectedIdea.coreFeature}` },
   ];
 
-  const worktrees: string[] = [];
-
   for (const branch of branches) {
-    addEvent(
-      projectId,
-      `Creating branch: ${branch.name} — ${branch.task}`,
-      "info"
-    );
-
-    const worktreePath = createWorktree(repoDir, branch.name);
-    worktrees.push(worktreePath);
-
-    addEvent(
-      projectId,
-      `Branch ${branch.name} ready — awaiting code generation`,
-      "info"
-    );
+    addEvent(projectId, `Creating branch: ${branch.name}`, "info");
+    createWorktree(repoDir, branch.name);
   }
+
+  const codeGenResult = await spawnCodeGenerationAgents(project, repoDir);
 
   transitionStatus(
     projectId,
     "building",
-    `${branches.length} feature branches created`,
+    `${codeGenResult.branches.length} agents spawned — building in parallel`,
     "info"
   );
 
-  return { worktrees, prs: [] };
+  return {
+    worktrees: codeGenResult.branches.map((b) => b.worktreePath),
+    prs: codeGenResult.branches.map((b) => b.prUrl),
+  };
 }
 
 /**
