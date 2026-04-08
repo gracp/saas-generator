@@ -15,9 +15,20 @@ import { Input } from "@/components/ui/input";
 import { Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import type { GeneratedIdea } from "@/lib/projects";
 
-export function NewProjectSheet() {
+export function NewProjectSheet({
+  open: controlledOpen,
+  onOpenChange,
+}: {
+  open?: boolean;
+  onOpenChange?: (v: boolean) => void;
+}) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen ?? internalOpen;
+  function setOpen(v: boolean) {
+    if (onOpenChange) onOpenChange(v);
+    else setInternalOpen(v);
+  }
   const [name, setName] = useState("");
   const [niche, setNiche] = useState("");
   const [loading, setLoading] = useState(false);
@@ -95,7 +106,7 @@ export function NewProjectSheet() {
   }
 
   return (
-    <Sheet open={open} onOpenChange={(v) => v === false && handleClose()}>
+    <Sheet open={open} onOpenChange={(v) => { if (!v) { handleClose(); } setOpen(v); }}>
       <SheetTrigger>
         <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold cursor-pointer">
           <Sparkles className="h-4 w-4" />

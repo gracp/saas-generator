@@ -93,24 +93,24 @@ function Hero() {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-violet-500/10 rounded-full blur-[120px] pointer-events-none" />
 
       <div className="relative z-10 max-w-4xl mx-auto text-center">
-        {/* Badge */}
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/20 bg-violet-500/10 text-violet-300 text-xs font-medium mb-8 reveal">
+        {/* Badge — always visible (above fold) */}
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/20 bg-violet-500/10 text-violet-300 text-xs font-medium mb-8 visible">
           <Sparkles className="w-3.5 h-3.5" />
           Powered by advanced AI
         </div>
 
-        {/* Headline */}
-        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-100 text-balance leading-[1.1] mb-6 reveal reveal-delay-1">
+        {/* Headline — always visible */}
+        <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-zinc-100 text-balance leading-[1.1] mb-6 visible">
           {copy.hero.headline}
         </h1>
 
-        {/* Subhead */}
-        <p className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 text-balance reveal reveal-delay-2">
+        {/* Subhead — always visible */}
+        <p className="text-base sm:text-lg md:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 text-balance visible">
           {copy.hero.subhead}
         </p>
 
-        {/* CTAs */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 reveal reveal-delay-3">
+        {/* CTAs — always visible */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 visible">
           <a
             href="/dashboard"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-violet-500 text-white font-semibold text-sm hover:bg-violet-400 transition-colors glow-violet-sm"
