@@ -61,7 +61,9 @@ export async function POST(
           { status: 400 }
         );
       }
-      const result = await selectIdeaAndBuild(params.id, ideaIndex);
+      const result = await selectIdeaAndBuild(params.id, ideaIndex, {
+        userEmail: session?.user?.email ?? undefined,
+      });
       return NextResponse.json({
         success: true,
         project: getProject(params.id),
@@ -70,7 +72,9 @@ export async function POST(
     }
 
     if (action === "deploy") {
-      const result = await deployProject(params.id);
+      const result = await deployProject(params.id, {
+        userEmail: session?.user?.email ?? undefined,
+      });
       return NextResponse.json({
         success: true,
         project: getProject(params.id),

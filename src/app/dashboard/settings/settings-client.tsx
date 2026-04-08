@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, Loader2, ExternalLink, LogOut, User } from "lucide-react";
+import { ApiKeysManager } from "@/components/dashboard/api-keys-manager";
 
 const PLANS = [
   { name: "Hobby", price: "$0/mo", description: "1 project", priceId: null },
@@ -174,37 +175,16 @@ export default function SettingsClient({ user }: SettingsClientProps) {
       {/* API Keys */}
       <Card className="bg-zinc-900 border-zinc-800">
         <CardHeader>
-          <CardTitle className="text-zinc-100 text-base">API Keys</CardTitle>
+          <CardTitle className="text-zinc-100 text-base flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-violet-400"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+            API Keys
+          </CardTitle>
           <CardDescription className="text-zinc-500">
             Configure your integrations. Keys are stored in <code className="text-zinc-300">.env.local</code>.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          {[
-            { key: "EXA_API_KEY", label: "Exa API Key (Research)", placeholder: "sk-exa-xxxx", help: "exa.ai" },
-            { key: "VERCEL_API_TOKEN", label: "Vercel API Token", placeholder: "xxxx", help: "vercel.com/account/tokens" },
-            { key: "RESEND_API_KEY", label: "Resend API Key (Email)", placeholder: "re_xxxx", help: "resend.com" },
-          ].map(({ key, label, placeholder, help }) => (
-            <div key={key} className="space-y-1.5">
-              <Label className="text-zinc-400 text-xs">{label}</Label>
-              <p className="text-[10px] text-zinc-600">Get your key at {help}</p>
-              <div className="flex gap-2">
-                <Input
-                  type="password"
-                  placeholder={placeholder}
-                  className="bg-zinc-950 border-zinc-800 text-zinc-100"
-                />
-                <Button
-                  size="sm"
-                  className="bg-violet-600 hover:bg-violet-700 text-white shrink-0"
-                  onClick={() => handleSaveEnv(key, "")}
-                  disabled={!!loading}
-                >
-                  {saved.includes(key) ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : "Save"}
-                </Button>
-              </div>
-            </div>
-          ))}
+        <CardContent>
+          <ApiKeysManager />
         </CardContent>
       </Card>
 

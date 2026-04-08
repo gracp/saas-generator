@@ -157,7 +157,8 @@ export async function researchAndGenerateIdeas(
 
 export async function selectIdeaAndBuild(
   projectId: string,
-  ideaIndex: number
+  ideaIndex: number,
+  options?: { userEmail?: string }
 ): Promise<{ worktrees: string[]; prs: string[] }> {
   const project = updateProject(projectId, {})!;
   const selectedIdea = project.ideas?.[ideaIndex];
@@ -214,7 +215,7 @@ export async function selectIdeaAndBuild(
   // Send build-started email (async, non-blocking — will be real email after auth is wired)
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3457";
   sendBuildStartedEmail({
-    to: "user@example.com", // TODO: replace with authenticated user email
+    to: options?.userEmail ?? "user@example.com",
     projectName: selectedIdea.name,
     ideaName: selectedIdea.name,
     dashboardUrl: `${baseUrl}/dashboard/${projectId}`,
@@ -226,7 +227,7 @@ export async function selectIdeaAndBuild(
   };
 }
 
-export async function deployProject(projectId: string): Promise<{ url: string }> {
+export async function deployProject(projectId: string, options?: { userEmail?: string }): Promise<{ url: string }> {
   transitionStatus(projectId, "deploying", "Connecting to Vercel...", "info");
 
   const project = updateProject(projectId, {})!;
@@ -248,7 +249,7 @@ export async function deployProject(projectId: string): Promise<{ url: string }>
   // Send deploy-complete email
   const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3457";
   sendDeployCompleteEmail({
-    to: "user@example.com", // TODO: replace with authenticated user email
+    to: options?.userEmail ?? "user@example.com",
     projectName: project.name,
     ideaName: project.selectedIdea?.name ?? project.name,
     vercelUrl: deployedUrl,
