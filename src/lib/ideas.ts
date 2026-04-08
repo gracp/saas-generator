@@ -62,7 +62,6 @@ export function generateIdeasFromResearch(
   // Determine primary pain theme
   const primaryPain = painPoints[0] ?? "inefficient workflows";
   const primaryAction = findPainAction(primaryPain);
-  const secondaryAction = findPainAction(painPoints[1] ?? painPoints[0]);
   const targetUser = extractTargetUser(niche);
 
   for (let i = 0; i < count; i++) {
@@ -75,8 +74,6 @@ export function generateIdeasFromResearch(
       attempts++;
     } while (usedNames.has(name) && attempts < 10);
 
-    const isHighDemand = demandScore > 75;
-    const isLowCompetition = competitionScore < 55;
     const baseScore = Math.round(
       demandScore * 0.4 +
         (100 - competitionScore) * 0.3 +

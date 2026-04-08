@@ -236,7 +236,7 @@ export function addCommentToPR(
 
 // ─── Vercel Integration ─────────────────────────────────
 
-export function connectToVercel(repoSlug: string, opts: {
+export function connectToVercel(repoSlug: string, _opts?: {
   vercelToken?: string;
   framework?: string;
 }): string {

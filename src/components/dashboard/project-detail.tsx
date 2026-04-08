@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import type { SaaSProject, ProjectEvent, ProjectStatus } from "@/lib/projects";
-import { STATUS_LABELS } from "@/lib/projects";
+
 
 const STAGES: { key: ProjectStatus; label: string }[] = [
   { key: "researching", label: "Research" },
@@ -58,7 +58,6 @@ function StageIndicator({ current }: { current: ProjectStatus }) {
       {STAGES.map((stage, i) => {
         const isComplete = i < currentIdx;
         const isCurrent = i === currentIdx;
-        const isPending = i > currentIdx;
 
         return (
           <div key={stage.key} className="flex items-center gap-2">
