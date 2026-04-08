@@ -1,5 +1,6 @@
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
+import { dbUpsertUser } from "./db";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -29,8 +30,13 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async signIn({ user, account, profile }) {
-      // Allow sign-in with Google
       if (account?.provider === "google") {
+        // Persist user to DB on OAuth sign-in
+        await dbUpsertUser({
+          email: user.email ?? "",
+          name: user.name,
+          image: user.image,
+        }).catch((err) => console.error("[DB] Failed to upsert user on sign-in:", err));
         return true;
       }
       return false;

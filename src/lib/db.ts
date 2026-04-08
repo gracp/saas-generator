@@ -45,6 +45,23 @@ export async function dbGetUser(email: string): Promise<User | null> {
   return prisma.user.findUnique({ where: { email } });
 }
 
+export async function dbGetUserByCustomerId(stripeCustomerId: string): Promise<User | null> {
+  const prisma = await getPrisma();
+  return prisma.user.findUnique({ where: { stripeCustomerId } });
+}
+
+export async function dbUpdateUserPlan(
+  email: string,
+  stripeCustomerId: string,
+  plan: "free" | "maker" | "studio"
+): Promise<void> {
+  const prisma = await getPrisma();
+  await prisma.user.update({
+    where: { email },
+    data: { stripeCustomerId, plan },
+  });
+}
+
 // ─── Project CRUD ────────────────────────────────────────
 
 export async function dbCreateProject({
@@ -89,14 +106,6 @@ export async function dbUpdateProject(
 export async function dbDeleteProject(id: string): Promise<void> {
   const prisma = await getPrisma();
   await prisma.project.delete({ where: { id } });
-}
-
-export async function dbIncrementProjectCount(userId: string): Promise<void> {
-  const prisma = await getPrisma();
-  await prisma.user.update({
-    where: { id: userId },
-    data: { projectCount: { increment: 1 } },
-  });
 }
 
 // ─── Connection management ────────────────────────────────
