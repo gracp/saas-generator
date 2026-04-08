@@ -8,9 +8,7 @@
  * - Custom domain configuration
  */
 
-import { setRepoSecret } from "./github";
-
-// ─── Types ───────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────
 
 export interface VercelConfig {
   apiToken?: string;
@@ -218,7 +216,7 @@ export async function waitForDeployment(
  * Connect GitHub repo to Vercel with OAuth.
  * Returns the authorization URL for the user to approve.
  */
-export function getVercelGitHubConnectUrl(vercelToken: string): string {
+export function getVercelGitHubConnectUrl(_vercelToken: string): string {
   return `https://vercel.com/oauth?redirect=https://vercel.com/integrations/github&teamId=`;
 }
 

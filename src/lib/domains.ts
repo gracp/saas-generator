@@ -65,8 +65,6 @@ export async function checkDomainAvailability(
     hasDNS = false;
   }
 
-  const inIndex = false; // reserved for future web index check
-
   // If domain has DNS records, it's taken
   if (hasDNS) {
     return {

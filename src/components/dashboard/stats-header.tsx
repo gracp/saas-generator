@@ -3,9 +3,14 @@
 import { FolderKanban, Rocket, Hammer } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+interface ProjectSummary {
+  id: string;
+  name: string;
+  status: string;
+}
+
 interface StatsHeaderProps {
-  projects: Array<Record<string, any>>;
+  projects: ProjectSummary[];
 }
 
 export function StatsHeader({ projects }: StatsHeaderProps) {

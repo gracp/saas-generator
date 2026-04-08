@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { getProject, updateProject, getAllProjects } from "@/lib/projects";
-import { selectIdeaAndBuild, deployProject } from "@/lib/orchestrator";
+import { getAllProjects } from "@/lib/projects";
 
 // GET /api/projects — list all projects
 export async function GET() {

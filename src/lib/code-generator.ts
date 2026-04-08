@@ -6,9 +6,9 @@
  * (sessions_spawn with runtime="subagent").
  */
 
-import { createWorktree, pushBranch } from "./github";
+import { createWorktree } from "./github";
 import { addEvent } from "./projects";
-import type { SaaSProject, GeneratedIdea } from "./projects";
+import type { SaaSProject } from "./projects";
 
 // ─── Types ───────────────────────────────────────────────
 
