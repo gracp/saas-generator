@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { ProjectDetail } from "@/components/dashboard/project-detail";
 import type { SaaSProject } from "@/lib/projects";
@@ -20,14 +20,14 @@ export default function ProjectPage() {
   const [loading, setLoading] = useState(true);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  function stopPolling() {
+  const stopPolling = useCallback(() => {
     if (pollingRef.current) {
       clearInterval(pollingRef.current);
       pollingRef.current = null;
     }
-  }
+  }, []);
 
-  function fetchProject() {
+  const fetchProject = useCallback(() => {
     if (!id) return;
     fetch(`/api/projects/${id}`)
       .then((res) => res.json())
@@ -35,7 +35,6 @@ export default function ProjectPage() {
         if (data.success) {
           setProject(data.project);
           const status = data.project.status;
-          // Stop polling on terminal or user-input statuses
           if (TERMINAL.has(status) || AWAITING_INPUT.has(status)) {
             stopPolling();
           }
@@ -43,17 +42,14 @@ export default function ProjectPage() {
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }
+  }, [id, stopPolling]);
 
   useEffect(() => {
     if (!id) return;
-    fetchProject(); // Initial fetch
-
-    // Start polling
+    fetchProject();
     pollingRef.current = setInterval(fetchProject, POLL_INTERVAL);
-
     return () => stopPolling();
-  }, [id]);
+  }, [id, fetchProject, stopPolling]);
 
   if (loading) {
     return (
