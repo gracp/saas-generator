@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { ProjectDetail } from "@/components/dashboard/project-detail";
 import { GenerationProgress } from "@/components/dashboard/generation-progress";
+import { DeployCelebration } from "@/components/dashboard/deploy-celebration";
 import type { SaaSProject, ProjectStatus } from "@/lib/projects";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -21,7 +22,9 @@ export default function ProjectPage() {
   const id = params?.id as string;
   const [project, setProject] = useState<SaaSProject | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showCelebration, setShowCelebration] = useState(false);
   const pollingRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const prevStatusRef = useRef<ProjectStatus | null>(null);
 
   const stopPolling = useCallback(() => {
     if (pollingRef.current) {
@@ -36,9 +39,14 @@ export default function ProjectPage() {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
+          const newStatus = data.project.status;
+          // Detect transition to "live"
+          if (prevStatusRef.current !== "live" && newStatus === "live") {
+            setShowCelebration(true);
+          }
+          prevStatusRef.current = newStatus;
           setProject(data.project);
-          const status = data.project.status;
-          if (TERMINAL.has(status) || AWAITING_INPUT.has(status)) {
+          if (TERMINAL.has(newStatus) || AWAITING_INPUT.has(newStatus)) {
             stopPolling();
           }
         }
@@ -83,6 +91,15 @@ export default function ProjectPage() {
         <GenerationProgress status={project.status} projectName={project.name} />
       )}
       <ProjectDetail project={project} />
+
+      {showCelebration && project.vercelUrl && (
+        <DeployCelebration
+          projectName={project.name}
+          vercelUrl={project.vercelUrl}
+          githubUrl={project.githubRepo}
+          onDismiss={() => setShowCelebration(false)}
+        />
+      )}
     </div>
   );
 }
