@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { StatsHeader } from "@/components/dashboard/stats-header";
 import { ProjectCard, type ProjectCardData } from "@/components/dashboard/project-card";
 import { NewProjectSheet } from "@/components/dashboard/new-project-sheet";
+import { EmptyState } from "@/components/dashboard/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function DashboardContent() {
@@ -60,17 +61,7 @@ function DashboardContent() {
           ))}
         </div>
       ) : projects.length === 0 ? (
-        <div className="text-center py-20">
-          <p className="text-zinc-500 text-sm mb-4">
-            No projects yet. Click below to generate your first SaaS.
-          </p>
-          <button
-            onClick={() => setSheetOpen(true)}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold transition-colors"
-          >
-            Generate your first SaaS
-          </button>
-        </div>
+        <EmptyState onCreateProject={() => setSheetOpen(true)} />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map((project) => (

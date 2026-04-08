@@ -509,7 +509,13 @@ function Pricing() {
               </ul>
 
               <a
-                href="#"
+                href={
+                  tier.price === "0"
+                    ? "/auth/signin?callbackUrl=/dashboard"
+                    : tier.price === "99"
+                      ? "mailto:hello@saasgenerator.dev?subject=Studio%20Plan"
+                      : "/dashboard/settings"
+                }
                 className={`w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                   tier.featured
                     ? "bg-violet-500 text-white hover:bg-violet-400"
@@ -596,7 +602,7 @@ function FinalCTA() {
         </p>
         <div className="reveal reveal-delay-2">
           <a
-            href="/waitlist"
+            href="/auth/signin?callbackUrl=/dashboard"
             className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-violet-500 text-white font-semibold text-base hover:bg-violet-400 transition-colors glow-violet"
           >
             {copy.finalCta.cta}
