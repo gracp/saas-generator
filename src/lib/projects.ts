@@ -51,6 +51,7 @@ const TRANSITIONS: Record<ProjectStatus, ProjectStatus[]> = {
 export interface SaaSProject {
   id: string;
   name: string;
+  userId?: string;
   status: ProjectStatus;
   niche?: string;
   selectedIdea?: GeneratedIdea;
