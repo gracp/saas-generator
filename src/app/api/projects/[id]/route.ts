@@ -1,19 +1,34 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { getProject, deleteProject } from "@/lib/projects";
 import { selectIdeaAndBuild, deployProject } from "@/lib/orchestrator";
+import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 
 // GET /api/projects/[id] — get a single project
 export async function GET(
-  _request: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
+  const ip = getClientIp(request);
+  const limited = rateLimit({ key: `project:${ip}:${params.id}`, ...RATE_LIMITS.api });
+  if (!limited.ok) {
+    return NextResponse.json({ success: false, error: "Too many requests" }, { status: 429, headers: { "Retry-After": String(limited.retryAfter) } });
+  }
+
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as { id?: string })?.id;
+
   const project = getProject(params.id);
   if (!project) {
-    return NextResponse.json(
-      { success: false, error: "Project not found" },
-      { status: 404 }
-    );
+    return NextResponse.json({ success: false, error: "Project not found" }, { status: 404 });
   }
+
+  // Data isolation: only owner can access their project
+  if (project.userId && userId && project.userId !== userId) {
+    return NextResponse.json({ success: false, error: "Project not found" }, { status: 404 });
+  }
+
   return NextResponse.json({ success: true, project });
 }
 
@@ -23,15 +38,20 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as { id?: string })?.id;
+
     const body = await request.json();
     const { ideaIndex, action } = body;
 
     const project = getProject(params.id);
     if (!project) {
-      return NextResponse.json(
-        { success: false, error: "Project not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ success: false, error: "Project not found" }, { status: 404 });
+    }
+
+    // Data isolation: only owner can modify their project
+    if (project.userId && userId && project.userId !== userId) {
+      return NextResponse.json({ success: false, error: "Project not found" }, { status: 404 });
     }
 
     if (action === "select-idea") {
@@ -41,7 +61,9 @@ export async function POST(
           { status: 400 }
         );
       }
-      const result = await selectIdeaAndBuild(params.id, ideaIndex);
+      const result = await selectIdeaAndBuild(params.id, ideaIndex, {
+        userEmail: session?.user?.email ?? undefined,
+      });
       return NextResponse.json({
         success: true,
         project: getProject(params.id),
@@ -50,7 +72,9 @@ export async function POST(
     }
 
     if (action === "deploy") {
-      const result = await deployProject(params.id);
+      const result = await deployProject(params.id, {
+        userEmail: session?.user?.email ?? undefined,
+      });
       return NextResponse.json({
         success: true,
         project: getProject(params.id),
@@ -73,9 +97,22 @@ export async function POST(
 
 // DELETE /api/projects/[id] — delete a project
 export async function DELETE(
-  _request: Request,
+  request: Request,
   { params }: { params: { id: string } }
 ) {
+  const session = await getServerSession(authOptions);
+  const userId = (session?.user as { id?: string })?.id;
+
+  const project = getProject(params.id);
+  if (!project) {
+    return NextResponse.json({ success: false, error: "Project not found" }, { status: 404 });
+  }
+
+  // Data isolation: only owner can delete their project
+  if (project.userId && userId && project.userId !== userId) {
+    return NextResponse.json({ success: false, error: "Project not found" }, { status: 404 });
+  }
+
   const existed = deleteProject(params.id);
   if (!existed) {
     return NextResponse.json(

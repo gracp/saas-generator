@@ -1,8 +1,17 @@
 import { NextResponse } from "next/server";
 import { dbAddWaitlistEntry, dbGetWaitlistCount } from "@/lib/db";
+import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 
 // POST /api/waitlist — join the early access waitlist
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const limited = rateLimit({ key: `waitlist:${ip}`, ...RATE_LIMITS.auth });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfter) } }
+    );
+  }
   try {
     const { email } = await request.json();
 

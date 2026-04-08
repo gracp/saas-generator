@@ -2,12 +2,22 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { PLANS, createCheckoutSession } from "@/lib/stripe-app";
+import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit";
 
 // POST /api/billing/checkout — create Stripe Checkout session
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const userId = (session.user as { id?: string }).id ?? session.user.email;
+  const limited = rateLimit({ key: `billing:${userId}`, ...RATE_LIMITS.api });
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "Too many requests" },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfter) } }
+    );
   }
 
   try {

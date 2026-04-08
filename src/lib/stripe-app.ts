@@ -1,5 +1,28 @@
 import Stripe from "stripe";
 
+// ─── Idempotency store for webhook events ─────────────────────────────────
+const processedEvents = new Map<string, number>(); // eventId -> timestamp
+
+const EVENT_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+export function isEventProcessed(eventId: string): boolean {
+  return processedEvents.has(eventId);
+}
+
+export function markEventProcessed(eventId: string): void {
+  processedEvents.set(eventId, Date.now());
+}
+
+export function cleanupProcessedEvents(): void {
+  const now = Date.now();
+  processedEvents.forEach((timestamp, eventId) => {
+    if (now - timestamp > EVENT_TTL_MS) {
+      processedEvents.delete(eventId);
+    }
+  });
+}
+
+// ─── Stripe client ─────────────────────────────────────────────────────────
 let _stripe: Stripe | null = null;
 
 export function getStripe(): Stripe {
