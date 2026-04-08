@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, Loader2, ExternalLink, LogOut, User, AlertTriangle } from "lucide-react";
 import { ApiKeysManager } from "@/components/dashboard/api-keys-manager";
+import { trackEvent } from "@/lib/analytics";
 
 const PLANS = [
   {
@@ -73,6 +74,11 @@ export default function SettingsClient({
   const isNearLimit = limit !== -1 && usagePercent >= 80;
 
   async function handleSubscribe(priceId: string) {
+    // Track upgrade clicked with plan info
+    const plan = PLANS.find((p) => p.priceId === priceId);
+    if (plan) {
+      trackEvent("upgrade_clicked", { plan: plan.key, price: plan.price });
+    }
     setLoading(priceId);
     try {
       const res = await fetch("/api/billing/checkout", {

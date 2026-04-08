@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sparkles, Rocket, CheckCircle2, ChevronRight, ChevronLeft, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { trackEvent } from "@/lib/analytics";
 
 interface OnboardingWizardProps {
   onComplete: () => void;
@@ -82,6 +83,7 @@ export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }:
   };
 
   const handleComplete = () => {
+    trackEvent("onboarding_completed", { niche: selectedNicheState });
     fetch("/api/onboarding/complete", { method: "POST" })
       .then(() => onComplete())
       .catch(() => onComplete());

@@ -8,6 +8,11 @@ import {
 import { getAllProjects } from "@/lib/projects";
 import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 
+// Server-side analytics tracking (log only, PostHog not available server-side)
+function trackProjectCreated(projectId: string, niche?: string) {
+  console.log("[Analytics] project_created", { projectId, niche });
+}
+
 // POST /api/generate — start a new SaaS project
 // NOTE: This is a long-running operation (research + idea generation).
 // It can take 1-3 minutes. Clients should set a long timeout.
@@ -53,6 +58,9 @@ export async function POST(request: Request) {
       result.project.id,
       niche
     );
+
+    // Track project created
+    trackProjectCreated(result.project.id, niche);
 
     return NextResponse.json({
       success: true,

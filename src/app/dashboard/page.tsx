@@ -8,6 +8,7 @@ import { NewProjectSheet } from "@/components/dashboard/new-project-sheet";
 import { EmptyState } from "@/components/dashboard/empty-state";
 import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { trackEvent } from "@/lib/analytics";
 
 interface DashboardContentProps {
   onboardingCompleted: boolean;
@@ -36,6 +37,8 @@ function DashboardContent({ onboardingCompleted }: DashboardContentProps) {
           if ((data.projects ?? []).length === 0 && !onboardingCompleted) {
             setShowOnboarding(true);
           }
+          // Track dashboard viewed
+          trackEvent("dashboard_viewed", { projectCount: (data.projects ?? []).length });
         }
       })
       .catch(() => {})
