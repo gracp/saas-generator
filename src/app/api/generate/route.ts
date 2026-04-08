@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import {
   initializeProject,
   researchAndGenerateIdeas,
@@ -9,11 +11,14 @@ import { getAllProjects } from "@/lib/projects";
 // NOTE: This is a long-running operation (research + idea generation).
 // It can take 1-3 minutes. Clients should set a long timeout.
 export async function POST(request: Request) {
-  // 5-minute timeout for the full generation pipeline
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 5 * 60 * 1000);
 
   try {
+    const session = await getServerSession(authOptions);
+    // Get userId from session (system placeholder if not authed yet)
+    const userId = (session?.user as { id?: string })?.id ?? undefined;
+
     const body = await request.json();
     const { projectName, niche, description } = body;
 
@@ -29,6 +34,7 @@ export async function POST(request: Request) {
       projectName,
       niche,
       description,
+      userId,
     });
 
     // Step 2: Research + generate ideas
@@ -63,7 +69,7 @@ export async function POST(request: Request) {
   }
 }
 
-// GET /api/generate — list all projects
+// GET /api/generate — list all projects (for in-memory fallback)
 export async function GET() {
   const projects = getAllProjects();
   return NextResponse.json({ success: true, projects });
