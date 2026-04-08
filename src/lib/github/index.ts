@@ -10,7 +10,7 @@ import { execSync, spawnSync } from "child_process";
 const GH = "gh";
 
 /** Thin wrapper around `gh` that throws on non-zero exit. */
-function gh(args: string, opts?: { cwd?: string }): string {
+export function gh(args: string, opts?: { cwd?: string }): string {
   const cmd = `${GH} ${args}`;
   return execSync(cmd, {
     encoding: "utf-8",

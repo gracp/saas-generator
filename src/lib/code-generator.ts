@@ -56,7 +56,8 @@ STEPS:
 10. Push: git push -u origin main
 
 DO NOT ask questions. Make decisions and execute.
-When done: openclaw system event --text "Done: Scaffolding complete in WORKTREE_PATH" --mode now`,
+When done, commit your changes and push to your branch. The session will end automatically.
+`,
   },
 
   "feat/landing-page": {
@@ -96,7 +97,8 @@ STEPS:
 5. Add scroll animation with intersection observer (useEffect + CSS classes)
 6. Verify: npm run build passes
 7. Commit + push + open PR to main
-8. When done: openclaw system event --text "Done: Landing page PR opened" --mode now`,
+8. Commit your changes and push to open a PR. The session will end automatically.
+`,
   },
 
   "feat/stripe-billing": {
@@ -128,7 +130,8 @@ STEPS:
 3. Add route handlers with proper error handling
 4. Update .env.example
 5. Commit + push + PR
-6. When done: openclaw system event --text "Done: Stripe billing PR opened" --mode now`,
+Commit your changes and push to open a PR. The session will end automatically.
+`,
   },
 
   "feat/core-feature": {
@@ -169,7 +172,8 @@ STEPS:
 3. Build it completely (frontend + backend + API)
 4. npm run build must pass
 5. Commit + push + PR
-6. When done: openclaw system event --text "Done: Core feature PR opened" --mode now`,
+Commit your changes and push to open a PR. The session will end automatically.
+`,
   },
 };
 
@@ -237,13 +241,14 @@ export async function spawnCodeGenerationAgents(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) => Promise<any>;
 
-    const session = await spawnFn({
+    // Await agent completion — result is intentionally discarded
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    await spawnFn({
       mode: "run",
       runtime: "subagent",
       task: prompt,
       cwd: worktreePath,
     });
-    void session;
 
     addEvent(
       project.id,
