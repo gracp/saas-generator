@@ -2,10 +2,8 @@ import { NextResponse } from "next/server";
 import {
   initializeProject,
   researchAndGenerateIdeas,
-  selectIdeaAndBuild,
-  deployProject,
 } from "@/lib/orchestrator";
-import { getAllProjects, getProject } from "@/lib/projects";
+import { getAllProjects } from "@/lib/projects";
 
 // POST /api/generate — start a new SaaS project
 export async function POST(request: Request) {
