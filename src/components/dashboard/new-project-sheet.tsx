@@ -39,6 +39,7 @@ export function NewProjectSheet({
   const [selecting, setSelecting] = useState(false);
   const { toast } = useToast();
   const [generationStep, setGenerationStep] = useState(0);
+  const [showIdeaCelebration, setShowIdeaCelebration] = useState(false);
 
   async function handleGenerate() {
     if (!name.trim()) return;
@@ -94,13 +95,17 @@ export function NewProjectSheet({
       });
       const data = await res.json();
       if (data.success) {
+        setShowIdeaCelebration(true);
         setOpen(false);
         setName("");
         setNiche("");
         setIdeas(null);
         setProjectId(null);
         setSelectedIdeaIdx(null);
-        router.push(`/dashboard/${projectId}`);
+        setTimeout(() => {
+          setShowIdeaCelebration(false);
+          router.push(`/dashboard/${projectId}`);
+        }, 1500);
       } else {
         toast(data.error ?? "Failed to start build", "error");
       }
@@ -295,6 +300,15 @@ export function NewProjectSheet({
             >
               Cancel
             </button>
+          </div>
+        )}
+
+        {/* Idea selection celebration overlay */}
+        {showIdeaCelebration && (
+          <div className="absolute inset-0 bg-zinc-950/90 flex flex-col items-center justify-center z-10 animate-in fade-in duration-200">
+            <div className="text-5xl mb-4 animate-bounce">🚀</div>
+            <p className="text-zinc-100 font-semibold text-sm">Building your SaaS!</p>
+            <p className="text-zinc-500 text-xs mt-1">Redirecting to your project...</p>
           </div>
         )}
       </SheetContent>
