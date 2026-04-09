@@ -40,9 +40,10 @@ export async function POST(request: Request) {
   try {
     event = constructWebhookEvent(payload, signature);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Webhook verification failed";
-    logWebhook("unknown", "error", message);
-    return NextResponse.json({ error: message }, { status: 400 });
+    // Sanitize — never expose raw error to Stripe or logs
+    const safeErr = err instanceof Error ? err.message : "unknown";
+    logWebhook("unknown", "error", "verification_failed");
+    return NextResponse.json({ error: "Webhook verification failed" }, { status: 400 });
   }
 
   // Idempotency check
@@ -71,7 +72,7 @@ export async function POST(request: Request) {
             await dbUpdateUserPlan(userEmail, customerId, plan);
             logWebhook(event.type, "processed", `${userEmail}->${plan}`);
           } catch (err) {
-            logWebhook(event.type, "error", `checkout.completed failed: ${err}`);
+            logWebhook(event.type, "error", `checkout.completed_failed: ${err instanceof Error ? err.message : "unknown"}`);
           }
         }
         break;
@@ -88,7 +89,7 @@ export async function POST(request: Request) {
             logWebhook(event.type, "processed", `${user.email}->free`);
           }
         } catch (err) {
-          logWebhook(event.type, "error", `subscription.deleted failed: ${err}`);
+          logWebhook(event.type, "error", `subscription_deleted_failed: ${err instanceof Error ? err.message : "unknown"}`);
         }
         break;
       }
@@ -105,7 +106,7 @@ export async function POST(request: Request) {
         break;
     }
   } catch (err) {
-    logWebhook(event.type, "error", `switch_handler: ${err}`);
+    logWebhook(event.type, "error", `handler_failed: ${err instanceof Error ? err.message : "unknown"}`);
   }
 
   markEventProcessed(event.id);
