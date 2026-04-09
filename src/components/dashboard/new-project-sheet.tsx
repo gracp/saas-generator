@@ -4,6 +4,7 @@ import { Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToast } from '@/components/providers/toast-provider';
+import { trackEvent } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -69,6 +70,11 @@ export function NewProjectSheet({
       if (data.success && data.ideas) {
         setIdeas(data.ideas);
         setProjectId(data.project?.id ?? null);
+        trackEvent('project_created', {
+          projectId: data.project?.id,
+          projectName: name.trim(),
+          niche: niche.trim() || undefined,
+        });
       } else {
         toast(data.error ?? 'Generation failed', 'error');
         setLoading(false);

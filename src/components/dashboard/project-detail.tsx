@@ -11,13 +11,14 @@ import {
   Lightbulb,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import type { SaaSProject, ProjectEvent, ProjectStatus } from '@/lib/projects';
+import { trackEvent } from '@/lib/analytics';
 
 const STAGES: { key: ProjectStatus; label: string }[] = [
   { key: 'researching', label: 'Research' },
@@ -118,11 +119,18 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
 
   async function handleSelectIdea(ideaIndex: number) {
     try {
-      await fetch(`/api/projects/${project.id}`, {
+      const res = await fetch(`/api/projects/${project.id}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'select-idea', ideaIndex }),
       });
+      if (res.ok) {
+        trackEvent('idea_selected', {
+          projectId: project.id,
+          ideaIndex,
+          ideaName: project.ideas?.[ideaIndex]?.name,
+        });
+      }
       window.location.reload();
     } catch {
       // handle error
@@ -144,6 +152,16 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
       setDeploying(false);
     }
   }
+
+  // Track deployed event when project status becomes live
+  useEffect(() => {
+    if (project.status === 'live') {
+      trackEvent('deployed', {
+        projectId: project.id,
+        vercelUrl: project.vercelUrl,
+      });
+    }
+  }, [project.status, project.id, project.vercelUrl]);
 
   return (
     <div className="space-y-6">
