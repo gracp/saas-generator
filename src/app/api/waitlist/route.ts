@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { dbAddWaitlistEntry, dbGetWaitlistCount } from "@/lib/db";
 import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
+import { csrfCheck } from "@/lib/csrf";
 
 // POST /api/waitlist — join the early access waitlist
 export async function POST(request: Request) {
+  // CSRF check for cross-origin requests
+  const csrfError = csrfCheck(request);
+  if (csrfError) return csrfError;
+
   const ip = getClientIp(request);
   const limited = rateLimit({ key: `waitlist:${ip}`, ...RATE_LIMITS.auth });
   if (!limited.ok) {

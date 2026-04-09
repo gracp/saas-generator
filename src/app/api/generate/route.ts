@@ -7,16 +7,28 @@ import {
 } from "@/lib/orchestrator";
 import { getAllProjects } from "@/lib/projects";
 import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
+import { csrfCheck } from "@/lib/csrf";
 
 // Server-side analytics tracking (log only, PostHog not available server-side)
 function trackProjectCreated(projectId: string, niche?: string) {
   console.log("[Analytics] project_created", { projectId, niche });
 }
 
+// Sanitize inputs before passing to LLM — prevents prompt injection
+function sanitizeForLLM(input: unknown, maxLen = 500): string | undefined {
+  if (input === undefined || input === null) return undefined;
+  if (typeof input !== "string") return undefined;
+  const cleaned = input.replace(/[\x00-\x1F\x7F]/g, "").trim().slice(0, maxLen);
+  return cleaned || undefined;
+}
+
 // POST /api/generate — start a new SaaS project
 // NOTE: This is a long-running operation (research + idea generation).
 // It can take 1-3 minutes. Clients should set a long timeout.
 export async function POST(request: Request) {
+  const csrfError = csrfCheck(request);
+  if (csrfError) return csrfError;
+
   const ip = getClientIp(request);
   const session = await getServerSession(authOptions);
   const userId = (session?.user as { id?: string })?.id ?? ip;
@@ -45,22 +57,25 @@ export async function POST(request: Request) {
       );
     }
 
+    const cleanNiche = sanitizeForLLM(niche, 300);
+    const cleanDescription = sanitizeForLLM(description, 500);
+
     // Step 1: Create repo + issues
     const result = await initializeProject({
       projectName,
-      niche,
-      description,
+      niche: cleanNiche,
+      description: cleanDescription,
       userId: uid,
     });
 
     // Step 2: Research + generate ideas
     const { research, ideas } = await researchAndGenerateIdeas(
       result.project.id,
-      niche
+      cleanNiche
     );
 
     // Track project created
-    trackProjectCreated(result.project.id, niche);
+    trackProjectCreated(result.project.id, cleanNiche);
 
     return NextResponse.json({
       success: true,

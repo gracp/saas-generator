@@ -130,6 +130,9 @@ export default function SettingsClient({
       if (res.ok) {
         setSaved((prev) => [...prev, key]);
         setTimeout(() => setSaved((prev) => prev.filter((k) => k !== key)), 3000);
+        toast(`${key} saved successfully`, "success");
+      } else {
+        toast(`Failed to save ${key}`, "error");
       }
     } catch { /* ignore */ }
     finally { setLoading(null); }
