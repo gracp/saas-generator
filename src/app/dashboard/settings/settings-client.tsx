@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CheckCircle2, Loader2, ExternalLink, LogOut, User, AlertTriangle } from "lucide-react";
 import { ApiKeysManager } from "@/components/dashboard/api-keys-manager";
+import { useToast } from "@/components/providers/toast-provider";
 import { trackEvent } from "@/lib/analytics";
 
 const PLANS = [
@@ -65,6 +66,7 @@ export default function SettingsClient({
   const [currentPlan, setCurrentPlan] = useState(serverPlan);
   const [loading, setLoading] = useState<string | null>(null);
   const [saved, setSaved] = useState<string[]>([]);
+  const { toast } = useToast();
 
   const projectCount = projects?.length ?? 0;
   const currentPlanConfig = PLANS.find((p) => p.key === currentPlan);
@@ -90,10 +92,10 @@ export default function SettingsClient({
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error ?? "Failed to start checkout");
+        toast(data.error ?? "Failed to start checkout", "error");
       }
     } catch {
-      alert("Network error");
+      toast("Network error — please try again", "error");
     } finally {
       setLoading(null);
     }
@@ -107,10 +109,10 @@ export default function SettingsClient({
       if (data.url) {
         window.location.href = data.url;
       } else {
-        alert(data.error ?? "Failed to open billing portal");
+        toast(data.error ?? "Failed to open billing portal", "error");
       }
     } catch {
-      alert("Network error");
+      toast("Network error — please try again", "error");
     } finally {
       setLoading(null);
     }

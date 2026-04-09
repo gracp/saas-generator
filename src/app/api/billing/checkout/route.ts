@@ -22,7 +22,6 @@ export async function POST(request: Request) {
 
   try {
     const { priceId } = await request.json();
-    const userId = (session.user as { id?: string }).id ?? session.user.email;
 
     // Validate price ID
     const validPriceIds = Object.values(PLANS).filter(Boolean);

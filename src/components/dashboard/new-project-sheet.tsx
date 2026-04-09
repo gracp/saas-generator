@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import type { GeneratedIdea } from "@/lib/projects";
+import { useToast } from "@/components/providers/toast-provider";
 
 export function NewProjectSheet({
   open: controlledOpen,
@@ -36,6 +37,7 @@ export function NewProjectSheet({
   const [projectId, setProjectId] = useState<string | null>(null);
   const [selectedIdeaIdx, setSelectedIdeaIdx] = useState<number | null>(null);
   const [selecting, setSelecting] = useState(false);
+  const { toast } = useToast();
 
   async function handleGenerate() {
     if (!name.trim()) return;
@@ -57,11 +59,11 @@ export function NewProjectSheet({
         setIdeas(data.ideas);
         setProjectId(data.project?.id ?? null);
       } else {
-        alert(data.error ?? "Generation failed");
+        toast(data.error ?? "Generation failed", "error");
         setLoading(false);
       }
     } catch {
-      alert("Network error — please try again");
+      toast("Network error — please try again", "error");
       setLoading(false);
     }
   }
@@ -87,10 +89,10 @@ export function NewProjectSheet({
         setSelectedIdeaIdx(null);
         router.push(`/dashboard/${projectId}`);
       } else {
-        alert(data.error ?? "Failed to start build");
+        toast(data.error ?? "Failed to start build", "error");
       }
     } catch {
-      alert("Network error — please try again");
+      toast("Network error — please try again", "error");
     } finally {
       setSelecting(false);
       setSelectedIdeaIdx(null);

@@ -31,9 +31,12 @@ export async function POST(request: Request) {
       message: "You're on the list! We'll be in touch soon.",
     });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to join waitlist";
-    // Fail gracefully — don't expose internal errors
-    return NextResponse.json({ success: true, message: "You're on the list!" });
+    console.error("[Waitlist] DB error:", error instanceof Error ? error.message : error);
+    // Don't silently swallow — tell the user something went wrong
+    return NextResponse.json(
+      { success: false, error: "Something went wrong. Please try again." },
+      { status: 500 }
+    );
   }
 }
 
