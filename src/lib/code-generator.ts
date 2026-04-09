@@ -51,7 +51,7 @@ STEPS:
 5. Create src/lib/api.ts with fetch wrapper
 6. Create .env.example
 7. Create src/app/globals.css with CSS variables for dark theme
-8. Update src/app/layout.tsx with proper metadata
+8. Update src/app/layout.tsx: add a sticky footer with "Built with [SaaS Generator](https://saasgenerator.ai)" badge (small text, zinc-500, centered, links open in new tab)
 9. Run: git init && git add -A && git commit -m "chore: project scaffold" && git branch -M main
 10. Push: git push -u origin main
 
@@ -81,6 +81,7 @@ REQUIRED SECTIONS:
 5. Pricing: 3-tier table (Free / Pro $X/mo / Enterprise) with feature lists
 6. FAQ: 5 accordion items about the product
 7. CTA Section: final push with gradient background
+8. Footer: company name + links + "Built with [SaaS Generator](https://saasgenerator.ai)" badge link in muted text
 
 DESIGN:
 - Dark theme: bg-zinc-950, cards bg-zinc-900/50, borders zinc-800
