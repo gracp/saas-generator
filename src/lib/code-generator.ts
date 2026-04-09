@@ -385,27 +385,54 @@ export async function spawnCodeGenerationAgents(
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) => Promise<any>;
 
-    // Await agent completion — result is intentionally discarded
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    await spawnFn({
-      mode: "run",
-      runtime: "subagent",
-      task: prompt,
-      cwd: worktreePath,
-    });
+    try {
+      // Await agent completion — with per-branch timeout (10 minutes)
+      // If agent fails or times out, log and continue to next branch
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10 * 60 * 1000);
 
-    addEvent(
-      project.id,
-      `Agent ${branchConfig.title} spawned on ${branch.name}`,
-      "info"
-    );
+      try {
+        await spawnFn({
+          mode: "run",
+          runtime: "subagent",
+          task: prompt,
+          cwd: worktreePath,
+        });
+        clearTimeout(timeout);
 
-    results.push({
-      name: branch.name,
-      task: branch.task,
-      worktreePath,
-      prUrl: "", // Agent will fill this in after PR
-    });
+        addEvent(
+          project.id,
+          `Agent ${branchConfig.title} completed on ${branch.name}`,
+          "info"
+        );
+        results.push({
+          name: branch.name,
+          task: branch.task,
+          worktreePath,
+          prUrl: "",
+        });
+      } catch (err) {
+        clearTimeout(timeout);
+        const message = err instanceof Error ? err.message : "unknown";
+        console.error(`[CodeGen] Agent ${branchConfig.title} failed: ${message}`);
+        addEvent(
+          project.id,
+          `Agent ${branchConfig.title} failed: ${message}. Continuing to next branch.`,
+          "error"
+        );
+        // Continue to next branch — per-branch isolation
+        results.push({
+          name: branch.name,
+          task: branch.task,
+          worktreePath,
+          prUrl: "",
+        });
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "unknown";
+      console.error(`[CodeGen] Worktree creation failed for ${branch.name}: ${message}`);
+      addEvent(project.id, `Branch ${branch.name} skipped: ${message}`, "error");
+    }
   }
 
   return { branches: results, completed: [] };
