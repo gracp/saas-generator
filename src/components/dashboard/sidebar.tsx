@@ -1,14 +1,9 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import {
-  FolderKanban,
-  Rocket,
-  Settings,
-  Sparkles,
-  Plus,
-} from "lucide-react";
+import { FolderKanban, Rocket, Settings, Sparkles, Plus } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 import {
   Sidebar,
   SidebarContent,
@@ -22,13 +17,12 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
+} from '@/components/ui/sidebar';
 
 const navItems = [
-  { title: "Projects", href: "/dashboard", icon: FolderKanban },
-  { title: "Launch Pad", href: "/dashboard/launch", icon: Rocket },
-  { title: "Settings", href: "/dashboard/settings", icon: Settings },
+  { title: 'Projects', href: '/dashboard', icon: FolderKanban },
+  { title: 'Launch Pad', href: '/dashboard/launch', icon: Rocket },
+  { title: 'Settings', href: '/dashboard/settings', icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -50,15 +44,13 @@ export function AppSidebar() {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel className="text-zinc-500 text-xs">
-            Workspace
-          </SidebarGroupLabel>
+          <SidebarGroupLabel className="text-zinc-500 text-xs">Workspace</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {navItems.map((item) => {
                 const isActive =
-                  item.href === "/dashboard"
-                    ? pathname === "/dashboard"
+                  item.href === '/dashboard'
+                    ? pathname === '/dashboard'
                     : pathname.startsWith(item.href);
                 return (
                   <SidebarMenuItem key={item.title}>

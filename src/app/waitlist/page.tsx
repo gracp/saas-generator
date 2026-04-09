@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { ArrowRight, Check, Loader2, Rocket, Zap, Users, TrendingUp } from "lucide-react";
+import { ArrowRight, Check, Loader2, Rocket, Zap, Users, TrendingUp } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function WaitlistPage() {
-  const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [message, setMessage] = useState("");
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
   const [count, setCount] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/api/waitlist")
+    fetch('/api/waitlist')
       .then((r) => r.json())
       .then((data) => {
         if (data.count) setCount(data.count);
@@ -22,25 +22,25 @@ export default function WaitlistPage() {
     e.preventDefault();
     if (!email.trim()) return;
 
-    setStatus("loading");
+    setStatus('loading');
     try {
-      const res = await fetch("/api/waitlist", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
       if (data.success) {
-        setStatus("success");
-        setMessage(data.message ?? "You are on the list!");
+        setStatus('success');
+        setMessage(data.message ?? 'You are on the list!');
         setCount((c) => (c !== null ? c + 1 : c));
       } else {
-        setStatus("error");
-        setMessage(data.error ?? "Something went wrong. Please try again.");
+        setStatus('error');
+        setMessage(data.error ?? 'Something went wrong. Please try again.');
       }
     } catch {
-      setStatus("error");
-      setMessage("Network error. Please try again.");
+      setStatus('error');
+      setMessage('Network error. Please try again.');
     }
   }
 
@@ -60,10 +60,7 @@ export default function WaitlistPage() {
             </div>
             <span className="font-semibold text-zinc-100">SaaS Generator</span>
           </div>
-          <a
-            href="/"
-            className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
-          >
+          <a href="/" className="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
             ← Back to home
           </a>
         </div>
@@ -72,7 +69,6 @@ export default function WaitlistPage() {
       {/* Content */}
       <div className="relative z-10 flex-1 flex items-center justify-center px-4 py-20">
         <div className="w-full max-w-xl text-center">
-
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-violet-500/20 bg-violet-500/10 text-violet-300 text-xs font-medium mb-8">
             <span className="relative flex h-2 w-2">
@@ -88,15 +84,15 @@ export default function WaitlistPage() {
           </h1>
 
           <p className="text-base sm:text-lg text-zinc-400 mb-8 text-balance max-w-lg mx-auto">
-            Join the waitlist and be first to access AI-powered app generation.
-            Pick a niche. Watch it build itself. Ship before dinner.
+            Join the waitlist and be first to access AI-powered app generation. Pick a niche. Watch
+            it build itself. Ship before dinner.
           </p>
 
           {/* Count */}
           {count !== null && (
             <div className="flex items-center justify-center gap-2 mb-10">
               <div className="flex -space-x-2">
-                {["M", "P", "J", "K", "R"].map((initial, i) => (
+                {['M', 'P', 'J', 'K', 'R'].map((initial, i) => (
                   <div
                     key={i}
                     className="w-7 h-7 rounded-full bg-violet-600 border-2 border-zinc-950 flex items-center justify-center text-white text-xs font-bold"
@@ -106,13 +102,14 @@ export default function WaitlistPage() {
                 ))}
               </div>
               <span className="text-sm text-zinc-500">
-                <span className="text-zinc-300 font-semibold">{count.toLocaleString()}+</span> makers already waiting
+                <span className="text-zinc-300 font-semibold">{count.toLocaleString()}+</span>{' '}
+                makers already waiting
               </span>
             </div>
           )}
 
           {/* Form */}
-          {status !== "success" ? (
+          {status !== 'success' ? (
             <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 mb-8">
               <input
                 type="email"
@@ -124,10 +121,10 @@ export default function WaitlistPage() {
               />
               <button
                 type="submit"
-                disabled={status === "loading"}
+                disabled={status === 'loading'}
                 className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-xl bg-violet-500 text-white font-semibold text-sm hover:bg-violet-400 transition-colors disabled:opacity-60 disabled:cursor-not-allowed whitespace-nowrap"
               >
-                {status === "loading" ? (
+                {status === 'loading' ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
                 ) : (
                   <>
@@ -149,33 +146,28 @@ export default function WaitlistPage() {
             </div>
           )}
 
-          {status === "error" && (
-            <p className="text-red-400 text-xs mb-4">{message}</p>
-          )}
+          {status === 'error' && <p className="text-red-400 text-xs mb-4">{message}</p>}
 
           {/* Benefits */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
             {[
               {
                 icon: <Zap className="w-4 h-4 text-violet-400" />,
-                title: "First access",
-                desc: "Be among the first to use every new feature we ship",
+                title: 'First access',
+                desc: 'Be among the first to use every new feature we ship',
               },
               {
                 icon: <TrendingUp className="w-4 h-4 text-violet-400" />,
-                title: "Beta pricing",
-                desc: "Lock in 40% off Maker plan for life as an early supporter",
+                title: 'Beta pricing',
+                desc: 'Lock in 40% off Maker plan for life as an early supporter',
               },
               {
                 icon: <Users className="w-4 h-4 text-violet-400" />,
-                title: "Private community",
-                desc: "Join a channel of makers sharing what is working",
+                title: 'Private community',
+                desc: 'Join a channel of makers sharing what is working',
               },
             ].map(({ icon, title, desc }) => (
-              <div
-                key={title}
-                className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50"
-              >
+              <div key={title} className="p-4 rounded-xl border border-zinc-800 bg-zinc-900/50">
                 <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-3">
                   {icon}
                 </div>

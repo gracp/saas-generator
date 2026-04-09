@@ -1,17 +1,5 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ArrowLeft,
   GitBranch,
@@ -21,29 +9,34 @@ import {
   Loader2,
   Rocket,
   Lightbulb,
-} from "lucide-react";
-import Link from "next/link";
-import type { SaaSProject, ProjectEvent, ProjectStatus } from "@/lib/projects";
-
+} from 'lucide-react';
+import Link from 'next/link';
+import { useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import type { SaaSProject, ProjectEvent, ProjectStatus } from '@/lib/projects';
 
 const STAGES: { key: ProjectStatus; label: string }[] = [
-  { key: "researching", label: "Research" },
-  { key: "generating_ideas", label: "Generate Ideas" },
-  { key: "selecting", label: "Select" },
-  { key: "building", label: "Build" },
-  { key: "reviewing", label: "Review" },
-  { key: "deploying", label: "Deploy" },
-  { key: "live", label: "Live" },
+  { key: 'researching', label: 'Research' },
+  { key: 'generating_ideas', label: 'Generate Ideas' },
+  { key: 'selecting', label: 'Select' },
+  { key: 'building', label: 'Build' },
+  { key: 'reviewing', label: 'Review' },
+  { key: 'deploying', label: 'Deploy' },
+  { key: 'live', label: 'Live' },
 ];
 
 const STAGE_ORDER: ProjectStatus[] = [
-  "researching",
-  "generating_ideas",
-  "selecting",
-  "building",
-  "reviewing",
-  "deploying",
-  "live",
+  'researching',
+  'generating_ideas',
+  'selecting',
+  'building',
+  'reviewing',
+  'deploying',
+  'live',
 ];
 
 function getStageIndex(status: ProjectStatus): number {
@@ -71,20 +64,14 @@ function StageIndicator({ current }: { current: ProjectStatus }) {
               )}
               <span
                 className={`text-[10px] font-medium ${
-                  isComplete
-                    ? "text-emerald-400"
-                    : isCurrent
-                      ? "text-violet-400"
-                      : "text-zinc-600"
+                  isComplete ? 'text-emerald-400' : isCurrent ? 'text-violet-400' : 'text-zinc-600'
                 }`}
               >
                 {stage.label}
               </span>
             </div>
             {i < STAGES.length - 1 && (
-              <div
-                className={`h-px w-4 ${i < currentIdx ? "bg-emerald-400/50" : "bg-zinc-800"}`}
-              />
+              <div className={`h-px w-4 ${i < currentIdx ? 'bg-emerald-400/50' : 'bg-zinc-800'}`} />
             )}
           </div>
         );
@@ -104,13 +91,13 @@ function EventTimeline({ events }: { events: ProjectEvent[] }) {
             <div key={i} className="flex items-start gap-3">
               <div
                 className={`mt-1 h-1.5 w-1.5 rounded-full flex-shrink-0 ${
-                  event.type === "success"
-                    ? "bg-emerald-400"
-                    : event.type === "warning"
-                      ? "bg-amber-400"
-                      : event.type === "error"
-                        ? "bg-red-400"
-                        : "bg-zinc-600"
+                  event.type === 'success'
+                    ? 'bg-emerald-400'
+                    : event.type === 'warning'
+                      ? 'bg-amber-400'
+                      : event.type === 'error'
+                        ? 'bg-red-400'
+                        : 'bg-zinc-600'
                 }`}
               />
               <div className="flex-1 min-w-0">
@@ -132,9 +119,9 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
   async function handleSelectIdea(ideaIndex: number) {
     try {
       await fetch(`/api/projects/${project.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "select-idea", ideaIndex }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'select-idea', ideaIndex }),
       });
       window.location.reload();
     } catch {
@@ -146,9 +133,9 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
     setDeploying(true);
     try {
       await fetch(`/api/projects/${project.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "deploy" }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'deploy' }),
       });
       window.location.reload();
     } catch {
@@ -164,19 +151,13 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <Link href="/dashboard">
-            <Button
-              variant="ghost"
-              size="sm"
-              className="text-zinc-500 hover:text-zinc-100"
-            >
+            <Button variant="ghost" size="sm" className="text-zinc-500 hover:text-zinc-100">
               <ArrowLeft className="h-4 w-4 mr-1" />
               Back
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-zinc-100">
-              {project.name}
-            </h1>
+            <h1 className="text-xl font-bold text-zinc-100">{project.name}</h1>
             <p className="text-xs text-zinc-500">
               Created {new Date(project.createdAt).toLocaleDateString()}
             </p>
@@ -207,10 +188,8 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
               </Button>
             </a>
           )}
-          {project.status === "selecting" && !project.selectedIdea && (
-            <Badge className="bg-amber-500/10 text-amber-400 border-0">
-              Pick an idea below
-            </Badge>
+          {project.status === 'selecting' && !project.selectedIdea && (
+            <Badge className="bg-amber-500/10 text-amber-400 border-0">Pick an idea below</Badge>
           )}
         </div>
       </div>
@@ -232,9 +211,7 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
           {project.researchData && (
             <Card className="bg-zinc-900 border-zinc-800">
               <CardHeader>
-                <CardTitle className="text-sm text-zinc-400">
-                  Market Research
-                </CardTitle>
+                <CardTitle className="text-sm text-zinc-400">Market Research</CardTitle>
                 <CardDescription className="text-zinc-600">
                   {project.researchData.niche}
                 </CardDescription>
@@ -243,42 +220,33 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
                 <div className="grid grid-cols-3 gap-3">
                   {[
                     {
-                      label: "Demand",
+                      label: 'Demand',
                       score: project.researchData.demandScore,
-                      color: "text-emerald-400",
+                      color: 'text-emerald-400',
                     },
                     {
-                      label: "Competition",
+                      label: 'Competition',
                       score: project.researchData.competitionScore,
-                      color: "text-amber-400",
+                      color: 'text-amber-400',
                     },
                     {
-                      label: "Monetization",
+                      label: 'Monetization',
                       score: project.researchData.monetizationScore,
-                      color: "text-violet-400",
+                      color: 'text-violet-400',
                     },
                   ].map((metric) => (
                     <div key={metric.label} className="text-center">
-                      <p className={`text-lg font-bold ${metric.color}`}>
-                        {metric.score}
-                      </p>
-                      <p className="text-[10px] text-zinc-600">
-                        {metric.label}
-                      </p>
+                      <p className={`text-lg font-bold ${metric.color}`}>{metric.score}</p>
+                      <p className="text-[10px] text-zinc-600">{metric.label}</p>
                     </div>
                   ))}
                 </div>
                 <Separator className="bg-zinc-800" />
                 <div>
-                  <p className="text-[10px] font-medium text-zinc-500 mb-2">
-                    Pain Points
-                  </p>
+                  <p className="text-[10px] font-medium text-zinc-500 mb-2">Pain Points</p>
                   <ul className="space-y-1">
                     {project.researchData.painPoints.map((point, i) => (
-                      <li
-                        key={i}
-                        className="text-xs text-zinc-400 flex items-start gap-2"
-                      >
+                      <li key={i} className="text-xs text-zinc-400 flex items-start gap-2">
                         <span className="text-zinc-600 mt-0.5">•</span>
                         {point}
                       </li>
@@ -304,53 +272,46 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
                     key={i}
                     className={`rounded-lg border p-4 transition-colors ${
                       project.selectedIdea?.name === idea.name
-                        ? "border-violet-500 bg-violet-500/5"
-                        : "border-zinc-800 hover:border-zinc-700"
+                        ? 'border-violet-500 bg-violet-500/5'
+                        : 'border-zinc-800 hover:border-zinc-700'
                     }`}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div>
-                        <p className="text-sm font-semibold text-zinc-100">
-                          {idea.name}
-                        </p>
+                        <p className="text-sm font-semibold text-zinc-100">{idea.name}</p>
                         <p className="text-xs text-zinc-500">{idea.tagline}</p>
                       </div>
                       <Badge
                         variant="secondary"
                         className={`text-[10px] border-0 ${
                           idea.validationScore >= 80
-                            ? "bg-emerald-500/10 text-emerald-400"
+                            ? 'bg-emerald-500/10 text-emerald-400'
                             : idea.validationScore >= 60
-                              ? "bg-amber-500/10 text-amber-400"
-                              : "bg-zinc-800 text-zinc-500"
+                              ? 'bg-amber-500/10 text-amber-400'
+                              : 'bg-zinc-800 text-zinc-500'
                         }`}
                       >
                         {idea.validationScore}
                       </Badge>
                     </div>
-                    <p className="text-[11px] text-zinc-500 mb-3">
-                      {idea.coreFeature}
-                    </p>
+                    <p className="text-[11px] text-zinc-500 mb-3">{idea.coreFeature}</p>
                     <div className="flex items-center gap-2">
-                      {project.status === "selecting" &&
-                        !project.selectedIdea && (
-                          <Button
-                            size="sm"
-                            className="bg-violet-600 hover:bg-violet-700 text-white text-xs h-7"
-                            onClick={() => handleSelectIdea(i)}
-                          >
-                            Select & Build
-                          </Button>
-                        )}
+                      {project.status === 'selecting' && !project.selectedIdea && (
+                        <Button
+                          size="sm"
+                          className="bg-violet-600 hover:bg-violet-700 text-white text-xs h-7"
+                          onClick={() => handleSelectIdea(i)}
+                        >
+                          Select & Build
+                        </Button>
+                      )}
                       {project.selectedIdea?.name === idea.name && (
                         <Badge className="bg-violet-500/10 text-violet-400 border-0">
                           ✓ Selected
                         </Badge>
                       )}
                       <span className="text-[10px] text-zinc-600">
-                        {idea.domainAvailable
-                          ? "✓ Domain available"
-                          : "✗ Domain taken"}
+                        {idea.domainAvailable ? '✓ Domain available' : '✗ Domain taken'}
                       </span>
                     </div>
                   </div>
@@ -365,9 +326,7 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
           {/* Event Timeline */}
           <Card className="bg-zinc-900 border-zinc-800">
             <CardHeader>
-              <CardTitle className="text-sm text-zinc-400">
-                Activity Log
-              </CardTitle>
+              <CardTitle className="text-sm text-zinc-400">Activity Log</CardTitle>
             </CardHeader>
             <CardContent>
               <EventTimeline events={project.events} />
@@ -375,7 +334,7 @@ export function ProjectDetail({ project }: { project: SaaSProject }) {
           </Card>
 
           {/* Deploy button */}
-          {(project.status === "reviewing" || project.status === "building") &&
+          {(project.status === 'reviewing' || project.status === 'building') &&
             project.selectedIdea && (
               <Card className="bg-zinc-900 border-zinc-800">
                 <CardContent className="pt-6">

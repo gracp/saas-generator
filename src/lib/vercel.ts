@@ -25,26 +25,23 @@ export interface VercelProject {
 export interface DeploymentResult {
   url: string;
   deploymentId: string;
-  status: "READY" | "ERROR" | "BUILDING";
+  status: 'READY' | 'ERROR' | 'BUILDING';
 }
 
 // ─── API Client ─────────────────────────────────────────
 
-function vercelFetch(
-  path: string,
-  opts: RequestInit & { token?: string } = {}
-): Promise<unknown> {
+function vercelFetch(path: string, opts: RequestInit & { token?: string } = {}): Promise<unknown> {
   const apiToken = opts.token ?? process.env.VERCEL_API_TOKEN;
-  if (!apiToken) throw new Error("VERCEL_API_TOKEN not set");
+  if (!apiToken) throw new Error('VERCEL_API_TOKEN not set');
 
-  const base = "https://api.vercel.com/v13";
-  const url = path.startsWith("http") ? path : `${base}${path}`;
+  const base = 'https://api.vercel.com/v13';
+  const url = path.startsWith('http') ? path : `${base}${path}`;
 
   const res = fetch(url, {
     ...opts,
     headers: {
       Authorization: `Bearer ${apiToken}`,
-      "Content-Type": "application/json",
+      'Content-Type': 'application/json',
       ...(opts.headers ?? {}),
     },
   });
@@ -70,7 +67,7 @@ export async function createVercelProject(opts: {
   token?: string;
   teamId?: string;
 }): Promise<VercelProject> {
-  const { name, githubRepo, framework = "nextjs", token, teamId } = opts;
+  const { name, githubRepo, framework = 'nextjs', token, teamId } = opts;
 
   // Check if project already exists
   const existing = await listVercelProjects(name, token);
@@ -78,18 +75,18 @@ export async function createVercelProject(opts: {
 
   // Create project via Vercel API
   const body: Record<string, unknown> = {
-    name: name.toLowerCase().replace(/\s+/g, "-"),
+    name: name.toLowerCase().replace(/\s+/g, '-'),
     framework,
     gitSource: {
-      type: "github",
-      repo: githubRepo.replace("https://github.com/", ""),
+      type: 'github',
+      repo: githubRepo.replace('https://github.com/', ''),
     },
   };
 
   if (teamId) body.teamId = teamId;
 
-  const data = (await vercelFetch("/v9/projects", {
-    method: "POST",
+  const data = (await vercelFetch('/v9/projects', {
+    method: 'POST',
     token,
     body: JSON.stringify(body),
   })) as { id: string; name: string; url: string; alias: string[] };
@@ -109,14 +106,10 @@ export async function listVercelProjects(
   name: string,
   token?: string
 ): Promise<VercelProject | null> {
-  const data = (await vercelFetch("/v9/projects", { token })) as {
+  const data = (await vercelFetch('/v9/projects', { token })) as {
     projects: Array<{ id: string; name: string; url: string; alias: string[] }>;
   };
-  return (
-    data.projects.find(
-      (p) => p.name.toLowerCase() === name.toLowerCase()
-    ) ?? null
-  );
+  return data.projects.find((p) => p.name.toLowerCase() === name.toLowerCase()) ?? null;
 }
 
 /**
@@ -126,20 +119,20 @@ export async function setVercelEnvVars(opts: {
   projectId: string;
   vars: Record<string, string>;
   token?: string;
-  target?: "production" | "preview" | "development";
+  target?: 'production' | 'preview' | 'development';
 }): Promise<void> {
-  const { projectId, vars, token, target = "production" } = opts;
+  const { projectId, vars, token, target = 'production' } = opts;
 
   await Promise.all(
     Object.entries(vars).map(([key, value]) =>
       vercelFetch(`/v9/projects/${projectId}/env`, {
-        method: "POST",
+        method: 'POST',
         token,
         body: JSON.stringify({
           key,
           value,
           target,
-          type: "secret",
+          type: 'secret',
         }),
       })
     )
@@ -158,18 +151,18 @@ export async function deployVercelProject(opts: {
 
   const body: Record<string, unknown> = {
     projectId,
-    target: "production",
+    target: 'production',
   };
   if (teamId) body.teamId = teamId;
 
-  const data = (await vercelFetch("/v13/deployments", {
-    method: "POST",
+  const data = (await vercelFetch('/v13/deployments', {
+    method: 'POST',
     token,
     body: JSON.stringify(body),
   })) as {
     id: string;
     url: string;
-    status: "READY" | "ERROR" | "BUILDING";
+    status: 'READY' | 'ERROR' | 'BUILDING';
   };
 
   return {
@@ -190,19 +183,16 @@ export async function waitForDeployment(
   const deadline = Date.now() + timeoutMs;
 
   while (Date.now() < deadline) {
-    const data = (await vercelFetch(
-      `/v13/deployments/${deploymentId}`,
-      { token }
-    )) as {
+    const data = (await vercelFetch(`/v13/deployments/${deploymentId}`, { token })) as {
       id: string;
       url: string;
-      status: "READY" | "ERROR" | "BUILDING";
+      status: 'READY' | 'ERROR' | 'BUILDING';
     };
 
-    if (data.status === "READY") {
-      return { deploymentId: data.id, url: `https://${data.url}`, status: "READY" };
+    if (data.status === 'READY') {
+      return { deploymentId: data.id, url: `https://${data.url}`, status: 'READY' };
     }
-    if (data.status === "ERROR") {
+    if (data.status === 'ERROR') {
       throw new Error(`Deployment failed: ${deploymentId}`);
     }
 
@@ -237,7 +227,7 @@ export async function fullDeploy(opts: {
   const project = await createVercelProject({
     name,
     githubRepo,
-    framework: "nextjs",
+    framework: 'nextjs',
     token,
   });
 

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { FolderKanban, Rocket, Hammer } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { FolderKanban, Rocket, Hammer } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface ProjectSummary {
   id: string;
@@ -15,22 +15,15 @@ interface StatsHeaderProps {
 
 export function StatsHeader({ projects }: StatsHeaderProps) {
   const total = projects.length;
-  const live = projects.filter((p) => p.status === "live").length;
-  const building = projects.filter(
-    (p) =>
-      [
-        "researching",
-        "generating_ideas",
-        "building",
-        "reviewing",
-        "deploying",
-      ].includes(p.status)
+  const live = projects.filter((p) => p.status === 'live').length;
+  const building = projects.filter((p) =>
+    ['researching', 'generating_ideas', 'building', 'reviewing', 'deploying'].includes(p.status)
   ).length;
 
   const stats = [
-    { label: "Total Projects", value: total, icon: FolderKanban, className: "text-zinc-400" },
-    { label: "Live", value: live, icon: Rocket, className: "text-emerald-400" },
-    { label: "Building", value: building, icon: Hammer, className: "text-orange-400" },
+    { label: 'Total Projects', value: total, icon: FolderKanban, className: 'text-zinc-400' },
+    { label: 'Live', value: live, icon: Rocket, className: 'text-emerald-400' },
+    { label: 'Building', value: building, icon: Hammer, className: 'text-orange-400' },
   ];
 
   return (

@@ -21,10 +21,10 @@ function generateKeyId(): string {
 }
 
 function generateApiKey(): string {
-  const prefix = "sk_live";
-  const randomPart = Array.from({ length: 32 }, () =>
-    Math.random().toString(36).charAt(2)
-  ).join("");
+  const prefix = 'sk_live';
+  const randomPart = Array.from({ length: 32 }, () => Math.random().toString(36).charAt(2)).join(
+    ''
+  );
   return `${prefix}_${randomPart}`;
 }
 
@@ -41,10 +41,10 @@ function maskKey(key: string): string {
  */
 export function createApiKey(userId: string, name: string): { id: string; key: string } {
   const userKeys = apiKeysStore.get(userId) || [];
-  
+
   const fullKey = generateApiKey();
   const maskedKey = maskKey(fullKey);
-  
+
   const newKey: ApiKey = {
     id: generateKeyId(),
     name,
@@ -53,17 +53,17 @@ export function createApiKey(userId: string, name: string): { id: string; key: s
     createdAt: new Date(),
     lastUsed: null,
   };
-  
+
   userKeys.push(newKey);
   apiKeysStore.set(userId, userKeys);
-  
+
   return { id: newKey.id, key: fullKey };
 }
 
 /**
  * Get all API keys for a user (masked)
  */
-export function getApiKeys(userId: string): Omit<ApiKey, "key">[] {
+export function getApiKeys(userId: string): Omit<ApiKey, 'key'>[] {
   const userKeys = apiKeysStore.get(userId) || [];
   return userKeys.map(({ key, ...rest }) => ({
     ...rest,
@@ -77,9 +77,9 @@ export function getApiKeys(userId: string): Omit<ApiKey, "key">[] {
 export function revokeApiKey(userId: string, keyId: string): boolean {
   const userKeys = apiKeysStore.get(userId) || [];
   const index = userKeys.findIndex((k) => k.id === keyId);
-  
+
   if (index === -1) return false;
-  
+
   userKeys.splice(index, 1);
   apiKeysStore.set(userId, userKeys);
   return true;

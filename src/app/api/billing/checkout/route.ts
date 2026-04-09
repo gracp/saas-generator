@@ -1,22 +1,22 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { PLANS, createCheckoutSession } from "@/lib/stripe-app";
-import { rateLimit, RATE_LIMITS } from "@/lib/rate-limit";
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
+import { rateLimit, RATE_LIMITS } from '@/lib/rate-limit';
+import { PLANS, createCheckoutSession } from '@/lib/stripe-app';
 
 // POST /api/billing/checkout — create Stripe Checkout session
 export async function POST(request: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const userId = (session.user as { id?: string }).id ?? session.user.email;
   const limited = rateLimit({ key: `billing:${userId}`, ...RATE_LIMITS.api });
   if (!limited.ok) {
     return NextResponse.json(
-      { error: "Too many requests" },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfter) } }
+      { error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': String(limited.retryAfter) } }
     );
   }
 
@@ -26,13 +26,12 @@ export async function POST(request: Request) {
     // Validate price ID
     const validPriceIds = Object.values(PLANS).filter(Boolean);
     if (!validPriceIds.includes(priceId)) {
-      return NextResponse.json({ error: "Invalid price ID" }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid price ID' }, { status: 400 });
     }
 
-    const returnUrl =
-      process.env.NEXTAUTH_URL
-        ? `${process.env.NEXTAUTH_URL}/dashboard/settings`
-        : "http://localhost:3457/dashboard/settings";
+    const returnUrl = process.env.NEXTAUTH_URL
+      ? `${process.env.NEXTAUTH_URL}/dashboard/settings`
+      : 'http://localhost:3457/dashboard/settings';
 
     const checkoutSession = await createCheckoutSession({
       priceId,
@@ -43,7 +42,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ url: checkoutSession.url });
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Failed to create checkout";
+    const message = error instanceof Error ? error.message : 'Failed to create checkout';
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

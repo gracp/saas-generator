@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
-import { dbAddWaitlistEntry, dbGetWaitlistCount } from "@/lib/db";
-import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
-import { csrfCheck } from "@/lib/csrf";
+import { NextResponse } from 'next/server';
+import { csrfCheck } from '@/lib/csrf';
+import { dbAddWaitlistEntry, dbGetWaitlistCount } from '@/lib/db';
+import { rateLimit, getClientIp, RATE_LIMITS } from '@/lib/rate-limit';
 
 // POST /api/waitlist — join the early access waitlist
 export async function POST(request: Request) {
@@ -13,20 +13,20 @@ export async function POST(request: Request) {
   const limited = rateLimit({ key: `waitlist:${ip}`, ...RATE_LIMITS.auth });
   if (!limited.ok) {
     return NextResponse.json(
-      { error: "Too many requests" },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfter) } }
+      { error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': String(limited.retryAfter) } }
     );
   }
   try {
     const { email } = await request.json();
 
-    if (!email || typeof email !== "string") {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    if (!email || typeof email !== 'string') {
+      return NextResponse.json({ error: 'Email is required' }, { status: 400 });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return NextResponse.json({ error: "Invalid email address" }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid email address' }, { status: 400 });
     }
 
     await dbAddWaitlistEntry(email);
@@ -36,10 +36,10 @@ export async function POST(request: Request) {
       message: "You're on the list! We'll be in touch soon.",
     });
   } catch (error) {
-    console.error("[Waitlist] DB error:", error instanceof Error ? error.message : error);
+    console.error('[Waitlist] DB error:', error instanceof Error ? error.message : error);
     // Don't silently swallow — tell the user something went wrong
     return NextResponse.json(
-      { success: false, error: "Something went wrong. Please try again." },
+      { success: false, error: 'Something went wrong. Please try again.' },
       { status: 500 }
     );
   }

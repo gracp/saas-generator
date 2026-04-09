@@ -23,12 +23,15 @@ interface RateLimitResult {
 const store = new Map<string, RateLimitEntry>();
 
 // Cleanup old entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  store.forEach((entry, key) => {
-    if (entry.resetAt < now) store.delete(key);
-  });
-}, 5 * 60 * 1000);
+setInterval(
+  () => {
+    const now = Date.now();
+    store.forEach((entry, key) => {
+      if (entry.resetAt < now) store.delete(key);
+    });
+  },
+  5 * 60 * 1000
+);
 
 export function rateLimit({
   key,
@@ -76,21 +79,21 @@ export function rateLimit({
  */
 export function getClientIp(request: Request): string {
   // Vercel-specific header — set by the edge, not spoofable by clients
-  const vercelForwarded = request.headers.get("x-vercel-forwarded-for");
-  if (vercelForwarded) return vercelForwarded.split(",")[0].trim();
+  const vercelForwarded = request.headers.get('x-vercel-forwarded-for');
+  if (vercelForwarded) return vercelForwarded.split(',')[0].trim();
 
   // Standard proxy header — only trust in production behind known proxies
-  const forwarded = request.headers.get("x-forwarded-for");
+  const forwarded = request.headers.get('x-forwarded-for');
   if (forwarded) {
     // In production (Vercel/CDN), the proxy sets this — trust it
     // In development, don't trust client-supplied headers
-    if (process.env.NODE_ENV === "production") {
-      return forwarded.split(",")[0].trim();
+    if (process.env.NODE_ENV === 'production') {
+      return forwarded.split(',')[0].trim();
     }
   }
 
   // Last resort fallback
-  return "127.0.0.1";
+  return '127.0.0.1';
 }
 
 /**

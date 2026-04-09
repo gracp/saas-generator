@@ -5,10 +5,9 @@
  * and opens a PR. Runs via OpenClaw's built-in agent system
  * (sessions_spawn with runtime="subagent").
  */
-
-import { createWorktree } from "./github";
-import { addEvent } from "./projects";
-import type { SaaSProject } from "./projects";
+import { createWorktree } from './github';
+import { addEvent } from './projects';
+import type { SaaSProject } from './projects';
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -26,12 +25,9 @@ export interface CodeGenResult {
 
 // ─── Agent Prompts per Branch ────────────────────────────
 
-const BRANCH_PROMPTS: Record<
-  string,
-  { title: string; prompt: string }
-> = {
-  "feat/scaffolding": {
-    title: "Scaffolding Agent",
+const BRANCH_PROMPTS: Record<string, { title: string; prompt: string }> = {
+  'feat/scaffolding': {
+    title: 'Scaffolding Agent',
     prompt: `You are building the foundation of a new SaaS app.
 
 GOAL: Initialize a Next.js 14 project in CURRENT directory with:
@@ -60,8 +56,8 @@ When done, commit your changes and push to your branch. The session will end aut
 `,
   },
 
-  "feat/landing-page": {
-    title: "Landing Page Agent",
+  'feat/landing-page': {
+    title: 'Landing Page Agent',
     prompt: `You are building a SaaS landing page.
 
 GOAL: Create a production-quality landing page in CURRENT directory.
@@ -102,8 +98,8 @@ STEPS:
 `,
   },
 
-  "feat/auth": {
-    title: "Auth Agent",
+  'feat/auth': {
+    title: 'Auth Agent',
     prompt: `You are setting up authentication.
 
 GOAL: Add NextAuth.js with Google OAuth + credentials to CURRENT directory.
@@ -139,8 +135,8 @@ STEPS:
 6. Commit + push + open PR to main`,
   },
 
-  "feat/database": {
-    title: "Database Agent",
+  'feat/database': {
+    title: 'Database Agent',
     prompt: `You are setting up the database layer.
 
 GOAL: Add Prisma ORM with PostgreSQL to CURRENT directory.
@@ -184,8 +180,8 @@ STEPS:
 9. Commit + push + open PR to main`,
   },
 
-  "feat/stripe-billing": {
-    title: "Stripe Billing Agent",
+  'feat/stripe-billing': {
+    title: 'Stripe Billing Agent',
     prompt: `You are integrating Stripe billing.
 
 GOAL: Set up Stripe subscriptions in CURRENT directory.
@@ -217,8 +213,8 @@ Commit your changes and push to open a PR. The session will end automatically.
 `,
   },
 
-  "feat/admin": {
-    title: "Admin Dashboard Agent",
+  'feat/admin': {
+    title: 'Admin Dashboard Agent',
     prompt: `You are building an admin dashboard.
 
 GOAL: Create an admin panel for APP_NAME in CURRENT directory.
@@ -266,8 +262,8 @@ STEPS:
 9. Commit + push + open PR to main`,
   },
 
-  "feat/core-feature": {
-    title: "Core Feature Agent",
+  'feat/core-feature': {
+    title: 'Core Feature Agent',
     prompt: `You are building the core feature of a SaaS app.
 
 GOAL: Build the main value proposition feature.
@@ -320,36 +316,36 @@ export async function spawnCodeGenerationAgents(
   repoDir: string
 ): Promise<CodeGenResult> {
   const idea = project.selectedIdea;
-  if (!idea) throw new Error("No idea selected");
+  if (!idea) throw new Error('No idea selected');
 
   const branches = [
     {
-      name: "feat/scaffolding",
-      task: "Project setup — Next.js, Tailwind, auth, database",
+      name: 'feat/scaffolding',
+      task: 'Project setup — Next.js, Tailwind, auth, database',
     },
     {
-      name: "feat/landing-page",
+      name: 'feat/landing-page',
       task: `Landing page for ${idea.name} — ${idea.tagline}`,
     },
     {
-      name: "feat/auth",
-      task: "Authentication — NextAuth + Google OAuth",
+      name: 'feat/auth',
+      task: 'Authentication — NextAuth + Google OAuth',
     },
     {
-      name: "feat/database",
-      task: "Database — Prisma + PostgreSQL + CRUD API",
+      name: 'feat/database',
+      task: 'Database — Prisma + PostgreSQL + CRUD API',
     },
     {
-      name: "feat/stripe-billing",
+      name: 'feat/stripe-billing',
       task: `Stripe billing — ${idea.monetization}`,
     },
     {
-      name: "feat/core-feature",
+      name: 'feat/core-feature',
       task: `Core feature: ${idea.coreFeature}`,
     },
     {
-      name: "feat/admin",
-      task: "Admin dashboard — stats, users, revenue",
+      name: 'feat/admin',
+      task: 'Admin dashboard — stats, users, revenue',
     },
   ];
 
@@ -358,11 +354,7 @@ export async function spawnCodeGenerationAgents(
   for (const branch of branches) {
     const worktreePath = createWorktree(repoDir, branch.name);
 
-    addEvent(
-      project.id,
-      `Spawning agent for ${branch.name}...`,
-      "info"
-    );
+    addEvent(project.id, `Spawning agent for ${branch.name}...`, 'info');
 
     // Build the agent prompt with substituted context
     const branchConfig = BRANCH_PROMPTS[branch.name];
@@ -374,13 +366,13 @@ export async function spawnCodeGenerationAgents(
       FEATURE: idea.coreFeature,
       PRICING: idea.monetization,
       USER: idea.targetUser,
-      FEATURES_LIST: idea.mvpScope.join(", "),
+      FEATURES_LIST: idea.mvpScope.join(', '),
       WORKTREE_PATH: worktreePath,
     });
 
     // sessions_spawn is injected by OpenClaw at runtime — cast to function to satisfy TS
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const spawnFn = (sessions_spawn as any) as (
+    const spawnFn = sessions_spawn as any as (
       opts: { mode: string; runtime: string; task: string; cwd?: string }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) => Promise<any>;
@@ -388,23 +380,19 @@ export async function spawnCodeGenerationAgents(
     // Await agent completion — result is intentionally discarded
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     await spawnFn({
-      mode: "run",
-      runtime: "subagent",
+      mode: 'run',
+      runtime: 'subagent',
       task: prompt,
       cwd: worktreePath,
     });
 
-    addEvent(
-      project.id,
-      `Agent ${branchConfig.title} spawned on ${branch.name}`,
-      "info"
-    );
+    addEvent(project.id, `Agent ${branchConfig.title} spawned on ${branch.name}`, 'info');
 
     results.push({
       name: branch.name,
       task: branch.task,
       worktreePath,
-      prUrl: "", // Agent will fill this in after PR
+      prUrl: '', // Agent will fill this in after PR
     });
   }
 
@@ -415,7 +403,7 @@ export async function spawnCodeGenerationAgents(
 
 function buildPrompt(template: string, vars: Record<string, string>): string {
   return template.replace(
-    new RegExp(Object.keys(vars).join("|"), "g"),
+    new RegExp(Object.keys(vars).join('|'), 'g'),
     (match) => vars[match] ?? match
   );
 }

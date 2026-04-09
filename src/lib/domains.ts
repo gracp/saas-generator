@@ -18,8 +18,8 @@ export interface DomainCheckResult {
  * Generate domain name candidates from a SaaS idea.
  */
 export function generateDomainCandidates(ideaName: string): string[] {
-  const sanitized = ideaName.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const tlds = [".com", ".io", ".co", ".app", ".dev"];
+  const sanitized = ideaName.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const tlds = ['.com', '.io', '.co', '.app', '.dev'];
   const candidates: string[] = [];
 
   for (const tld of tlds) {
@@ -32,9 +32,9 @@ export function generateDomainCandidates(ideaName: string): string[] {
   // Special characters → word splits
   if (/[a-z][A-Z]/.test(ideaName)) {
     // CamelCase → split
-    const split = ideaName.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
-    candidates.push(`${split.replace(/-/g, "")}.com`);
-    candidates.push(`${split.replace(/-/g, "")}.io`);
+    const split = ideaName.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    candidates.push(`${split.replace(/-/g, '')}.com`);
+    candidates.push(`${split.replace(/-/g, '')}.io`);
   }
 
   return Array.from(new Set(candidates)).slice(0, 6);
@@ -46,19 +46,17 @@ export function generateDomainCandidates(ideaName: string): string[] {
  * Check if a domain is likely available for registration.
  * Uses multiple signals to estimate availability.
  */
-export async function checkDomainAvailability(
-  domain: string
-): Promise<DomainCheckResult> {
-  const tld = domain.split(".").pop() ?? "";
+export async function checkDomainAvailability(domain: string): Promise<DomainCheckResult> {
+  const tld = domain.split('.').pop() ?? '';
 
   // Check using Exa to see if domain is in use
-  const { execSync } = await import("child_process");
+  const { execSync } = await import('child_process');
 
   // Try a simple DNS lookup
   let hasDNS = false;
   try {
     execSync(`dig +short ${domain} 2>/dev/null | grep -v "^$"`, {
-      stdio: "pipe",
+      stdio: 'pipe',
     });
     hasDNS = true;
   } catch {
@@ -89,19 +87,15 @@ export async function checkDomainAvailability(
     name: domain,
     available: true,
     price: prices[tld] ?? 15,
-    registrar: "Namecheap / Cloudflare",
+    registrar: 'Namecheap / Cloudflare',
   };
 }
 
 /**
  * Check multiple domain candidates and return sorted by availability.
  */
-export async function checkDomains(
-  domains: string[]
-): Promise<DomainCheckResult[]> {
-  const results = await Promise.all(
-    domains.map((d) => checkDomainAvailability(d))
-  );
+export async function checkDomains(domains: string[]): Promise<DomainCheckResult[]> {
+  const results = await Promise.all(domains.map((d) => checkDomainAvailability(d)));
 
   // Sort: available first, then by price
   return results.sort((a, b) => {

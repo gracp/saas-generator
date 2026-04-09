@@ -1,12 +1,10 @@
-import { Resend } from "resend";
+import { Resend } from 'resend';
 
-const resend = process.env.RESEND_API_KEY
-  ? new Resend(process.env.RESEND_API_KEY)
-  : null;
+const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null;
 
-const FROM = process.env.EMAIL_FROM ?? "SaaS Generator <hello@resend.dev>";
+const FROM = process.env.EMAIL_FROM ?? 'SaaS Generator <hello@resend.dev>';
 
-const isDev = process.env.NODE_ENV === "development";
+const isDev = process.env.NODE_ENV === 'development';
 
 // ─── Send Build Started Email ───────────────────────────
 export async function sendBuildStartedEmail({
@@ -21,18 +19,18 @@ export async function sendBuildStartedEmail({
   dashboardUrl: string;
 }) {
   if (!resend) {
-    console.log("[Email] RESEND_API_KEY not set — skipping build-started email to", to);
+    console.log('[Email] RESEND_API_KEY not set — skipping build-started email to', to);
     return;
   }
   try {
     await resend.emails.send({
       from: FROM,
-      to: isDev ? "delivered@resend.dev" : to,
+      to: isDev ? 'delivered@resend.dev' : to,
       subject: `🚀 ${projectName} — Build started!`,
       html: buildStartedEmail({ projectName, ideaName, dashboardUrl }),
     });
   } catch (err) {
-    console.error("[Email] Failed to send build-started email:", err);
+    console.error('[Email] Failed to send build-started email:', err);
   }
 }
 
@@ -53,18 +51,18 @@ export async function sendDeployCompleteEmail({
   dashboardUrl: string;
 }) {
   if (!resend) {
-    console.log("[Email] RESEND_API_KEY not set — skipping deploy-complete email to", to);
+    console.log('[Email] RESEND_API_KEY not set — skipping deploy-complete email to', to);
     return;
   }
   try {
     await resend.emails.send({
       from: FROM,
-      to: isDev ? "delivered@resend.dev" : to,
+      to: isDev ? 'delivered@resend.dev' : to,
       subject: `🎉 ${projectName} is LIVE!`,
       html: deployCompleteEmail({ projectName, ideaName, vercelUrl, githubUrl, dashboardUrl }),
     });
   } catch (err) {
-    console.error("[Email] Failed to send deploy-complete email:", err);
+    console.error('[Email] Failed to send deploy-complete email:', err);
   }
 }
 

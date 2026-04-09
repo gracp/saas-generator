@@ -5,47 +5,47 @@
 // ─── Types ───────────────────────────────────────────────
 
 export type ProjectStatus =
-  | "idle"
-  | "researching"
-  | "generating_ideas"
-  | "selecting"
-  | "building"
-  | "reviewing"
-  | "deploying"
-  | "live";
+  | 'idle'
+  | 'researching'
+  | 'generating_ideas'
+  | 'selecting'
+  | 'building'
+  | 'reviewing'
+  | 'deploying'
+  | 'live';
 
 export const STATUS_LABELS: Record<ProjectStatus, string> = {
-  idle: "Not Started",
-  researching: "🔍 Researching",
-  generating_ideas: "💡 Generating Ideas",
-  selecting: "👆 Awaiting Selection",
-  building: "🔨 Building",
-  reviewing: "📋 Reviewing",
-  deploying: "🚀 Deploying",
-  live: "✅ Live",
+  idle: 'Not Started',
+  researching: '🔍 Researching',
+  generating_ideas: '💡 Generating Ideas',
+  selecting: '👆 Awaiting Selection',
+  building: '🔨 Building',
+  reviewing: '📋 Reviewing',
+  deploying: '🚀 Deploying',
+  live: '✅ Live',
 };
 
 export const STATUS_COLORS: Record<ProjectStatus, string> = {
-  idle: "zinc",
-  researching: "blue",
-  generating_ideas: "violet",
-  selecting: "amber",
-  building: "orange",
-  reviewing: "cyan",
-  deploying: "emerald",
-  live: "green",
+  idle: 'zinc',
+  researching: 'blue',
+  generating_ideas: 'violet',
+  selecting: 'amber',
+  building: 'orange',
+  reviewing: 'cyan',
+  deploying: 'emerald',
+  live: 'green',
 };
 
 // State machine transitions — only these transitions are valid
 const TRANSITIONS: Record<ProjectStatus, ProjectStatus[]> = {
-  idle: ["researching"],
-  researching: ["generating_ideas", "idle"],
-  generating_ideas: ["selecting", "idle"],
-  selecting: ["building", "generating_ideas"],
-  building: ["reviewing", "building"], // can stay in building while agents work
-  reviewing: ["building", "deploying"], // send back for fixes, or proceed
-  deploying: ["live", "reviewing"], // launch or roll back
-  live: ["deploying"], // can re-deploy
+  idle: ['researching'],
+  researching: ['generating_ideas', 'idle'],
+  generating_ideas: ['selecting', 'idle'],
+  selecting: ['building', 'generating_ideas'],
+  building: ['reviewing', 'building'], // can stay in building while agents work
+  reviewing: ['building', 'deploying'], // send back for fixes, or proceed
+  deploying: ['live', 'reviewing'], // launch or roll back
+  live: ['deploying'], // can re-deploy
 };
 
 export interface SaaSProject {
@@ -69,7 +69,7 @@ export interface ProjectEvent {
   timestamp: string;
   status: ProjectStatus;
   message: string;
-  type: "info" | "success" | "warning" | "error";
+  type: 'info' | 'success' | 'warning' | 'error';
 }
 
 export interface ResearchResult {
@@ -102,15 +102,15 @@ export function createProject(name: string): SaaSProject {
   const project: SaaSProject = {
     id: crypto.randomUUID(),
     name,
-    status: "idle",
+    status: 'idle',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     events: [
       {
         timestamp: new Date().toISOString(),
-        status: "idle",
-        message: "Project created",
-        type: "info",
+        status: 'idle',
+        message: 'Project created',
+        type: 'info',
       },
     ],
   };
@@ -132,7 +132,7 @@ export function transitionStatus(
   projectId: string,
   newStatus: ProjectStatus,
   message: string,
-  eventType: ProjectEvent["type"] = "info"
+  eventType: ProjectEvent['type'] = 'info'
 ): SaaSProject | null {
   const project = projects.get(projectId);
   if (!project) return null;
@@ -140,7 +140,7 @@ export function transitionStatus(
   const allowed = TRANSITIONS[project.status];
   if (!allowed.includes(newStatus)) {
     throw new Error(
-      `Invalid transition: ${project.status} → ${newStatus}. Allowed: ${allowed.join(", ")}`
+      `Invalid transition: ${project.status} → ${newStatus}. Allowed: ${allowed.join(', ')}`
     );
   }
 
@@ -160,7 +160,7 @@ export function transitionStatus(
 export function addEvent(
   projectId: string,
   message: string,
-  eventType: ProjectEvent["type"] = "info"
+  eventType: ProjectEvent['type'] = 'info'
 ): void {
   const project = projects.get(projectId);
   if (!project) return;
