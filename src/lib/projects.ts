@@ -4,6 +4,12 @@
 
 // ─── Types ───────────────────────────────────────────────
 
+// Validate CUID format (Prisma default ID format)
+// CUIDs are 25 characters, start with "c" or "cl", alphanumeric
+export function isValidCuid(id: string): boolean {
+  return /^c[lo]_?[a-z0-9]{24}$/.test(id) || /^cl[a-z0-9]{20}$/.test(id);
+}
+
 export type ProjectStatus =
   | "idle"
   | "researching"

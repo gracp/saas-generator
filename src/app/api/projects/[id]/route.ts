@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
-import { getProject, deleteProject } from "@/lib/projects";
+import { getProject, deleteProject, isValidCuid } from "@/lib/projects";
 import { selectIdeaAndBuild, deployProject } from "@/lib/orchestrator";
 import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
 
@@ -14,6 +14,11 @@ export async function GET(
   const limited = rateLimit({ key: `project:${ip}:${params.id}`, ...RATE_LIMITS.api });
   if (!limited.ok) {
     return NextResponse.json({ success: false, error: "Too many requests" }, { status: 429, headers: { "Retry-After": String(limited.retryAfter) } });
+  }
+
+  // Validate project ID format to prevent arbitrary file/system access
+  if (!isValidCuid(params.id)) {
+    return NextResponse.json({ success: false, error: "Invalid project ID" }, { status: 400 });
   }
 
   const session = await getServerSession(authOptions);
@@ -40,6 +45,9 @@ export async function POST(
   try {
     const session = await getServerSession(authOptions);
     const userId = (session?.user as { id?: string })?.id;
+    if (!isValidCuid(params.id)) {
+      return NextResponse.json({ success: false, error: "Invalid project ID" }, { status: 400 });
+    }
 
     const body = await request.json();
     const { ideaIndex, action } = body;
@@ -102,6 +110,9 @@ export async function DELETE(
 ) {
   const session = await getServerSession(authOptions);
   const userId = (session?.user as { id?: string })?.id;
+  if (!isValidCuid(params.id)) {
+    return NextResponse.json({ success: false, error: "Invalid project ID" }, { status: 400 });
+  }
 
   const project = getProject(params.id);
   if (!project) {
