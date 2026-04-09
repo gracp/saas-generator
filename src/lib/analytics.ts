@@ -1,4 +1,4 @@
-import { PostHog } from "posthog-js";
+import { PostHog } from 'posthog-js';
 
 let posthog: PostHog | null = null;
 
@@ -8,9 +8,9 @@ export function initAnalytics() {
 
   posthog = new PostHog();
   posthog.init(key, {
-    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || "https://app.posthog.com",
+    api_host: process.env.NEXT_PUBLIC_POSTHOG_HOST || 'https://app.posthog.com',
     capture_pageview: true,
-    persistence: "localStorage+cookie",
+    persistence: 'localStorage+cookie',
   });
 }
 

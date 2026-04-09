@@ -1,34 +1,34 @@
-"use client";
+'use client';
 
-import { Loader2, CheckCircle2, Search, Code, Rocket, Globe } from "lucide-react";
-import type { ProjectStatus } from "@/lib/projects";
+import { Loader2, CheckCircle2, Search, Code, Rocket, Globe } from 'lucide-react';
+import type { ProjectStatus } from '@/lib/projects';
 
 const STEPS = [
   {
-    key: "researching",
-    label: "Researching market & competitors",
-    detail: "Scanning industry trends, competitors, and market gaps using AI...",
+    key: 'researching',
+    label: 'Researching market & competitors',
+    detail: 'Scanning industry trends, competitors, and market gaps using AI...',
     icon: Search,
     estimate: 15,
   },
   {
-    key: "generating",
-    label: "Generating SaaS ideas",
-    detail: "Crafting unique business ideas validated against real market data...",
+    key: 'generating',
+    label: 'Generating SaaS ideas',
+    detail: 'Crafting unique business ideas validated against real market data...',
     icon: Rocket,
     estimate: 10,
   },
   {
-    key: "building",
-    label: "Building your application",
-    detail: "Scaffolding, landing page, auth, billing, and core feature — all in parallel...",
+    key: 'building',
+    label: 'Building your application',
+    detail: 'Scaffolding, landing page, auth, billing, and core feature — all in parallel...',
     icon: Code,
     estimate: 60,
   },
   {
-    key: "deploying",
-    label: "Deploying to Vercel",
-    detail: "Building the app, running tests, and going live on your custom Vercel URL...",
+    key: 'deploying',
+    label: 'Deploying to Vercel',
+    detail: 'Building the app, running tests, and going live on your custom Vercel URL...',
     icon: Globe,
     estimate: 30,
   },
@@ -36,18 +36,18 @@ const STEPS = [
 
 // Map ProjectStatus to step keys
 const STATUS_TO_STEP: Partial<Record<ProjectStatus, string>> = {
-  researching: "researching",
-  generating_ideas: "generating",
-  building: "building",
-  deploying: "deploying",
+  researching: 'researching',
+  generating_ideas: 'generating',
+  building: 'building',
+  deploying: 'deploying',
 };
 
-const STEP_ORDER = ["researching", "generating", "building", "deploying"] as const;
+const STEP_ORDER = ['researching', 'generating', 'building', 'deploying'] as const;
 
 function getStepIndex(status: ProjectStatus): number {
   const stepKey = STATUS_TO_STEP[status];
   if (!stepKey) return -1;
-  return STEP_ORDER.indexOf(stepKey as typeof STEP_ORDER[number]);
+  return STEP_ORDER.indexOf(stepKey as (typeof STEP_ORDER)[number]);
 }
 
 function getTotalEstimate(status: ProjectStatus): number {
@@ -92,13 +92,9 @@ export function GenerationProgress({ status, projectName }: GenerationProgressPr
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Loader2 className="h-4 w-4 text-violet-400 animate-spin" />
-            <span className="text-sm font-medium text-zinc-200">
-              Building {projectName}...
-            </span>
+            <span className="text-sm font-medium text-zinc-200">Building {projectName}...</span>
           </div>
-          <span className="text-xs text-zinc-500">
-            ~{totalEstimate}s remaining
-          </span>
+          <span className="text-xs text-zinc-500">~{totalEstimate}s remaining</span>
         </div>
 
         {/* Step list */}
@@ -114,9 +110,9 @@ export function GenerationProgress({ status, projectName }: GenerationProgressPr
                 key={step.key}
                 className={`
                   flex items-center gap-3 rounded-md p-3 transition-all duration-300
-                  ${isActive ? "bg-violet-500/10 border-l-2 border-violet-500" : ""}
-                  ${isComplete ? "bg-emerald-500/5" : ""}
-                  ${isPending ? "opacity-50" : ""}
+                  ${isActive ? 'bg-violet-500/10 border-l-2 border-violet-500' : ''}
+                  ${isComplete ? 'bg-emerald-500/5' : ''}
+                  ${isPending ? 'opacity-50' : ''}
                 `}
               >
                 {/* Icon */}
@@ -140,9 +136,9 @@ export function GenerationProgress({ status, projectName }: GenerationProgressPr
                   <span
                     className={`
                       text-sm block
-                      ${isActive ? "text-zinc-100 font-medium" : ""}
-                      ${isComplete ? "text-emerald-400" : ""}
-                      ${isPending ? "text-zinc-500" : ""}
+                      ${isActive ? 'text-zinc-100 font-medium' : ''}
+                      ${isComplete ? 'text-emerald-400' : ''}
+                      ${isPending ? 'text-zinc-500' : ''}
                     `}
                   >
                     {step.label}
@@ -172,24 +168,22 @@ export function GenerationProgress({ status, projectName }: GenerationProgressPr
         <div
           className={`
             flex items-center gap-3 rounded-md p-3
-            ${status === "live" ? "bg-emerald-500/10 border-l-2 border-emerald-500" : "opacity-50"}
+            ${status === 'live' ? 'bg-emerald-500/10 border-l-2 border-emerald-500' : 'opacity-50'}
           `}
         >
           <div className="flex-shrink-0">
-            {status === "live" ? (
+            {status === 'live' ? (
               <CheckCircle2 className="h-5 w-5 text-emerald-400" />
             ) : (
               <CheckCircle2 className="h-5 w-5 text-zinc-600" />
             )}
           </div>
           <span
-            className={`text-sm flex-1 ${status === "live" ? "text-emerald-400 font-medium" : "text-zinc-500"}`}
+            className={`text-sm flex-1 ${status === 'live' ? 'text-emerald-400 font-medium' : 'text-zinc-500'}`}
           >
             Done! Your SaaS is live
           </span>
-          {status === "live" && (
-            <CheckCircle2 className="h-4 w-4 text-emerald-400 flex-shrink-0" />
-          )}
+          {status === 'live' && <CheckCircle2 className="h-4 w-4 text-emerald-400 flex-shrink-0" />}
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Rocket, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Rocket, Sparkles } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface EmptyStateProps {
   onCreateProject: () => void;
@@ -31,9 +31,7 @@ export function EmptyState({ onCreateProject }: EmptyStateProps) {
         </div>
 
         {/* Headline */}
-        <h2 className="text-2xl font-bold text-zinc-100 mb-3">
-          Your SaaS empire starts here
-        </h2>
+        <h2 className="text-2xl font-bold text-zinc-100 mb-3">Your SaaS empire starts here</h2>
 
         {/* Subheadline */}
         <p className="text-sm text-zinc-400 mb-8 leading-relaxed">
@@ -51,9 +49,7 @@ export function EmptyState({ onCreateProject }: EmptyStateProps) {
           </Button>
 
           {/* Secondary text */}
-          <p className="text-xs text-zinc-500">
-            Browse examples below to see what you can build
-          </p>
+          <p className="text-xs text-zinc-500">Browse examples below to see what you can build</p>
         </div>
 
         {/* Decorative dots pattern */}

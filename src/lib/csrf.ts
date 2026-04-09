@@ -12,8 +12,8 @@
  */
 export function csrfCheck(request: Request): Response | null {
   // Get the origin header (set by browsers automatically for same-origin requests)
-  const origin = request.headers.get("origin");
-  const host = request.headers.get("host");
+  const origin = request.headers.get('origin');
+  const host = request.headers.get('host');
 
   // If we have an origin header, verify it matches our host
   if (origin) {
@@ -24,19 +24,19 @@ export function csrfCheck(request: Request): Response | null {
 
       // For cross-origin requests, also check the content-type to ensure
       // this is a JSON API call (not a browser form submission)
-      const contentType = request.headers.get("content-type");
-      if (!contentType?.includes("application/json")) {
-        return new Response(
-          JSON.stringify({ error: "Invalid request origin" }),
-          { status: 403, headers: { "Content-Type": "application/json" } }
-        );
+      const contentType = request.headers.get('content-type');
+      if (!contentType?.includes('application/json')) {
+        return new Response(JSON.stringify({ error: 'Invalid request origin' }), {
+          status: 403,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
     } catch {
       // Invalid origin URL — reject
-      return new Response(
-        JSON.stringify({ error: "Invalid request origin" }),
-        { status: 403, headers: { "Content-Type": "application/json" } }
-      );
+      return new Response(JSON.stringify({ error: 'Invalid request origin' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
   }
 

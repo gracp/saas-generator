@@ -6,15 +6,14 @@
  *
  * Uses the pr-code-reviewer skill for reviews and GitHub API for status checks.
  */
-
-import { getPullRequest, addCommentToPR, mergePullRequest } from "./github";
+import { getPullRequest, addCommentToPR, mergePullRequest } from './github';
 
 // ─── Types ───────────────────────────────────────────────
 
 export interface PRReviewResult {
   prNumber: number;
   repoSlug: string;
-  status: "approved" | "changes_requested" | "pending" | "error";
+  status: 'approved' | 'changes_requested' | 'pending' | 'error';
   reviewBody: string;
   blockers: string[];
   warnings: string[];
@@ -25,7 +24,7 @@ export interface WorkflowCheckResult {
   allPassed: boolean;
   checks: Array<{
     name: string;
-    status: "pass" | "fail" | "pending";
+    status: 'pass' | 'fail' | 'pending';
   }>;
 }
 
@@ -35,26 +34,23 @@ export interface WorkflowCheckResult {
  * Run a code review on a PR using pr-code-reviewer pattern.
  * Returns classified findings (blockers, warnings, suggestions).
  */
-export async function reviewPR(
-  repoSlug: string,
-  prNumber: number
-): Promise<PRReviewResult> {
+export async function reviewPR(repoSlug: string, prNumber: number): Promise<PRReviewResult> {
   // Get PR diff via gh
-  const { execSync } = await import("child_process");
+  const { execSync } = await import('child_process');
 
-  let diff = "";
+  let diff = '';
   try {
-    diff = execSync(
-      `gh pr diff ${prNumber} --repo ${repoSlug}`,
-      { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] }
-    );
+    diff = execSync(`gh pr diff ${prNumber} --repo ${repoSlug}`, {
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'pipe'],
+    });
   } catch {
     return {
       prNumber,
       repoSlug,
-      status: "error",
-      reviewBody: "Could not fetch PR diff",
-      blockers: ["Failed to retrieve PR diff from GitHub"],
+      status: 'error',
+      reviewBody: 'Could not fetch PR diff',
+      blockers: ['Failed to retrieve PR diff from GitHub'],
       warnings: [],
       suggestions: [],
     };
@@ -68,10 +64,10 @@ export async function reviewPR(
 
   const status =
     findings.blockers.length > 0
-      ? "changes_requested"
+      ? 'changes_requested'
       : findings.warnings.length > 0
-        ? "approved" // warnings don't block
-        : "approved";
+        ? 'approved' // warnings don't block
+        : 'approved';
 
   return {
     prNumber,
@@ -97,19 +93,19 @@ function analyzeDiff(diff: string): Findings {
   const warnings: string[] = [];
   const suggestions: string[] = [];
 
-  const lines = diff.split("\n");
-  let file = "";
+  const lines = diff.split('\n');
+  let file = '';
 
   for (const line of lines) {
     // Track current file
-    if (line.startsWith("diff --git")) {
+    if (line.startsWith('diff --git')) {
       const match = line.match(/diff --git a\/(.+) b\//);
       if (match) file = match[1];
       continue;
     }
 
     // Removed lines (potential problems)
-    if (line.startsWith("-") && !line.startsWith("---")) {
+    if (line.startsWith('-') && !line.startsWith('---')) {
       const content = line.slice(1);
 
       // Hardcoded secrets / API keys
@@ -128,8 +124,10 @@ function analyzeDiff(diff: string): Findings {
       }
 
       // Very long lines (>120 chars)
-      if (content.length > 120 && !content.startsWith("//")) {
-        suggestions.push(`[STYLE] Line too long (${content.length} chars) in ${file}: ${content.slice(0, 50)}`);
+      if (content.length > 120 && !content.startsWith('//')) {
+        suggestions.push(
+          `[STYLE] Line too long (${content.length} chars) in ${file}: ${content.slice(0, 50)}`
+        );
       }
 
       // Empty catch blocks
@@ -154,7 +152,7 @@ function analyzeDiff(diff: string): Findings {
     }
 
     // Added lines (additional checks)
-    if (line.startsWith("+") && !line.startsWith("+++")) {
+    if (line.startsWith('+') && !line.startsWith('+++')) {
       const content = line.slice(1);
 
       // Exposed secrets in env files
@@ -180,38 +178,38 @@ function formatReviewComment(findings: Findings): string {
   const warnings = findings.warnings;
   const suggestions = findings.suggestions;
 
-  blocks.push("## 🔍 Code Review\n");
+  blocks.push('## 🔍 Code Review\n');
 
   if (blockers.length === 0 && warnings.length === 0 && suggestions.length === 0) {
-    blocks.push("✅ **No issues found.** Code looks clean.");
-    return blocks.join("\n");
+    blocks.push('✅ **No issues found.** Code looks clean.');
+    return blocks.join('\n');
   }
 
   if (blockers.length > 0) {
     blocks.push(`## 🔴 Blockers (${blockers.length})`);
     for (const b of blockers) blocks.push(`- ${b}`);
-    blocks.push("");
+    blocks.push('');
   }
 
   if (warnings.length > 0) {
     blocks.push(`## 🟡 Warnings (${warnings.length})`);
     for (const w of warnings) blocks.push(`- ${w}`);
-    blocks.push("");
+    blocks.push('');
   }
 
   if (suggestions.length > 0) {
     blocks.push(`## 🔵 Suggestions (${suggestions.length})`);
     for (const s of suggestions) blocks.push(`- ${s}`);
-    blocks.push("");
+    blocks.push('');
   }
 
   const verdict =
     blockers.length > 0
-      ? "❌ **CHANGES REQUESTED** — fix blockers before merge"
-      : "✅ **APPROVED** — minor issues only";
+      ? '❌ **CHANGES REQUESTED** — fix blockers before merge'
+      : '✅ **APPROVED** — minor issues only';
 
   blocks.push(`\n---\n**Verdict:** ${verdict}`);
-  return blocks.join("\n");
+  return blocks.join('\n');
 }
 
 // ─── CI Status Checker ─────────────────────────────────
@@ -226,16 +224,16 @@ export async function getCIStatus(
   const pr = getPullRequest(repoSlug, prNumber);
 
   return {
-    allPassed: pr.statusCheckRollup.status === "SUCCESS",
+    allPassed: pr.statusCheckRollup.status === 'SUCCESS',
     checks: [
       {
-        name: "CI / tests",
+        name: 'CI / tests',
         status:
-          pr.statusCheckRollup.status === "SUCCESS"
-            ? "pass"
-            : pr.statusCheckRollup.status === "FAILURE"
-              ? "fail"
-              : "pending",
+          pr.statusCheckRollup.status === 'SUCCESS'
+            ? 'pass'
+            : pr.statusCheckRollup.status === 'FAILURE'
+              ? 'fail'
+              : 'pending',
       },
     ],
   };
@@ -273,7 +271,7 @@ export async function reviewAndMerge(
       return {
         reviewed: true,
         merged: false,
-        reason: "CI checks not passing",
+        reason: 'CI checks not passing',
       };
     }
   }
@@ -281,18 +279,18 @@ export async function reviewAndMerge(
   // 4. Auto-merge
   if (options.autoMerge) {
     try {
-      mergePullRequest(repoSlug, prNumber, "squash");
-      return { reviewed: true, merged: true, reason: "PR merged via squash" };
+      mergePullRequest(repoSlug, prNumber, 'squash');
+      return { reviewed: true, merged: true, reason: 'PR merged via squash' };
     } catch {
       return {
         reviewed: true,
         merged: false,
-        reason: "Merge failed — check PR status manually",
+        reason: 'Merge failed — check PR status manually',
       };
     }
   }
 
-  return { reviewed: true, merged: false, reason: "Reviewed — auto-merge disabled" };
+  return { reviewed: true, merged: false, reason: 'Reviewed — auto-merge disabled' };
 }
 
 /**

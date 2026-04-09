@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Rocket, ExternalLink, GitBranch, ArrowRight } from "lucide-react";
-import Link from "next/link";
-import type { ProjectCardData } from "@/components/dashboard/project-card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Rocket, ExternalLink, GitBranch, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import type { ProjectCardData } from '@/components/dashboard/project-card';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function LaunchPadPage() {
   const [projects, setProjects] = useState<ProjectCardData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/projects")
+    fetch('/api/projects')
       .then((res) => res.json())
       .then((data) => {
         if (data.success) setProjects(data.projects ?? []);
@@ -22,7 +22,7 @@ export default function LaunchPadPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const liveProjects = projects.filter((p) => p.status === "live");
+  const liveProjects = projects.filter((p) => p.status === 'live');
 
   if (loading) {
     return (
@@ -50,9 +50,7 @@ export default function LaunchPadPage() {
         <div className="text-center py-20">
           <Rocket className="h-12 w-12 text-zinc-700 mx-auto mb-4" />
           <p className="text-zinc-500 text-sm mb-2">No live projects yet</p>
-          <p className="text-zinc-600 text-xs mb-6">
-            Generate and build a project to see it here
-          </p>
+          <p className="text-zinc-600 text-xs mb-6">Generate and build a project to see it here</p>
           <Link href="/dashboard">
             <Button className="bg-violet-600 hover:bg-violet-700 text-white">
               Go to Projects

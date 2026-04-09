@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { Suspense, useEffect, useState } from "react";
-import { useSearchParams } from "next/navigation";
-import { StatsHeader } from "@/components/dashboard/stats-header";
-import { ProjectCard, type ProjectCardData } from "@/components/dashboard/project-card";
-import { NewProjectSheet } from "@/components/dashboard/new-project-sheet";
-import { EmptyState } from "@/components/dashboard/empty-state";
-import { OnboardingWizard } from "@/components/dashboard/onboarding-wizard";
-import { Skeleton } from "@/components/ui/skeleton";
-import { trackEvent } from "@/lib/analytics";
+import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { EmptyState } from '@/components/dashboard/empty-state';
+import { NewProjectSheet } from '@/components/dashboard/new-project-sheet';
+import { OnboardingWizard } from '@/components/dashboard/onboarding-wizard';
+import { ProjectCard, type ProjectCardData } from '@/components/dashboard/project-card';
+import { StatsHeader } from '@/components/dashboard/stats-header';
+import { Skeleton } from '@/components/ui/skeleton';
+import { trackEvent } from '@/lib/analytics';
 
 interface DashboardContentProps {
   onboardingCompleted: boolean;
@@ -22,13 +22,13 @@ function DashboardContent({ onboardingCompleted }: DashboardContentProps) {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
-    if (searchParams.get("new") === "true") {
+    if (searchParams.get('new') === 'true') {
       setSheetOpen(true);
     }
   }, [searchParams]);
 
   useEffect(() => {
-    fetch("/api/projects")
+    fetch('/api/projects')
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -38,7 +38,7 @@ function DashboardContent({ onboardingCompleted }: DashboardContentProps) {
             setShowOnboarding(true);
           }
           // Track dashboard viewed
-          trackEvent("dashboard_viewed", { projectCount: (data.projects ?? []).length });
+          trackEvent('dashboard_viewed', { projectCount: (data.projects ?? []).length });
         }
       })
       .catch(() => {})
@@ -56,23 +56,15 @@ function DashboardContent({ onboardingCompleted }: DashboardContentProps) {
   return (
     <>
       {showOnboarding && (
-        <OnboardingWizard
-          onComplete={handleOnboardingComplete}
-          onSkip={handleOnboardingSkip}
-        />
+        <OnboardingWizard onComplete={handleOnboardingComplete} onSkip={handleOnboardingSkip} />
       )}
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-zinc-100">Projects</h1>
-            <p className="text-xs text-zinc-500">
-              Your generated SaaS applications
-            </p>
+            <p className="text-xs text-zinc-500">Your generated SaaS applications</p>
           </div>
-          <NewProjectSheet
-            open={sheetOpen}
-            onOpenChange={(v) => setSheetOpen(v)}
-          />
+          <NewProjectSheet open={sheetOpen} onOpenChange={(v) => setSheetOpen(v)} />
         </div>
 
         <StatsHeader projects={projects} />
@@ -80,10 +72,7 @@ function DashboardContent({ onboardingCompleted }: DashboardContentProps) {
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className="space-y-3 rounded-xl border border-zinc-800 bg-zinc-900 p-6"
-              >
+              <div key={i} className="space-y-3 rounded-xl border border-zinc-800 bg-zinc-900 p-6">
                 <Skeleton className="h-4 w-32 bg-zinc-800" />
                 <Skeleton className="h-3 w-48 bg-zinc-800" />
                 <Skeleton className="h-1.5 w-full bg-zinc-800" />
@@ -116,7 +105,7 @@ export default function DashboardPage({
   useEffect(() => {
     searchParams.then((params) => {
       // If there's an onboarding=complete query param, user completed it
-      if (params.onboarding === "complete") {
+      if (params.onboarding === 'complete') {
         setOnboardingCompleted(true);
       }
       setParamsResolved(true);
@@ -134,7 +123,14 @@ export default function DashboardPage({
   }
 
   return (
-    <Suspense fallback={<div className="space-y-4"><Skeleton className="h-8 w-48 bg-zinc-800" /><Skeleton className="h-40 w-full bg-zinc-800" /></div>}>
+    <Suspense
+      fallback={
+        <div className="space-y-4">
+          <Skeleton className="h-8 w-48 bg-zinc-800" />
+          <Skeleton className="h-40 w-full bg-zinc-800" />
+        </div>
+      }
+    >
       <DashboardContent onboardingCompleted={onboardingCompleted} />
     </Suspense>
   );

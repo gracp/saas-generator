@@ -1,24 +1,24 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import {
-  initializeProject,
-  researchAndGenerateIdeas,
-} from "@/lib/orchestrator";
-import { getAllProjects } from "@/lib/projects";
-import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
-import { csrfCheck } from "@/lib/csrf";
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
+import { csrfCheck } from '@/lib/csrf';
+import { initializeProject, researchAndGenerateIdeas } from '@/lib/orchestrator';
+import { getAllProjects } from '@/lib/projects';
+import { rateLimit, getClientIp, RATE_LIMITS } from '@/lib/rate-limit';
 
 // Server-side analytics tracking (log only, PostHog not available server-side)
 function trackProjectCreated(projectId: string, niche?: string) {
-  console.log("[Analytics] project_created", { projectId, niche });
+  console.log('[Analytics] project_created', { projectId, niche });
 }
 
 // Sanitize inputs before passing to LLM — prevents prompt injection
 function sanitizeForLLM(input: unknown, maxLen = 500): string | undefined {
   if (input === undefined || input === null) return undefined;
-  if (typeof input !== "string") return undefined;
-  const cleaned = input.replace(/[\x00-\x1F\x7F]/g, "").trim().slice(0, maxLen);
+  if (typeof input !== 'string') return undefined;
+  const cleaned = input
+    .replace(/[\x00-\x1F\x7F]/g, '')
+    .trim()
+    .slice(0, maxLen);
   return cleaned || undefined;
 }
 
@@ -35,8 +35,11 @@ export async function POST(request: Request) {
   const limited = rateLimit({ key: `generate:${userId}`, ...RATE_LIMITS.generate });
   if (!limited.ok) {
     return NextResponse.json(
-      { success: false, error: "Too many generation requests. Please try again later." },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfter), "X-RateLimit-Remaining": "0" } }
+      { success: false, error: 'Too many generation requests. Please try again later.' },
+      {
+        status: 429,
+        headers: { 'Retry-After': String(limited.retryAfter), 'X-RateLimit-Remaining': '0' },
+      }
     );
   }
 
@@ -50,9 +53,9 @@ export async function POST(request: Request) {
     const body = await request.json();
     const { projectName, niche, description } = body;
 
-    if (!projectName || typeof projectName !== "string") {
+    if (!projectName || typeof projectName !== 'string') {
       return NextResponse.json(
-        { success: false, error: "projectName is required" },
+        { success: false, error: 'projectName is required' },
         { status: 400 }
       );
     }
@@ -69,10 +72,7 @@ export async function POST(request: Request) {
     });
 
     // Step 2: Research + generate ideas
-    const { research, ideas } = await researchAndGenerateIdeas(
-      result.project.id,
-      cleanNiche
-    );
+    const { research, ideas } = await researchAndGenerateIdeas(result.project.id, cleanNiche);
 
     // Track project created
     trackProjectCreated(result.project.id, cleanNiche);
@@ -87,17 +87,17 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     clearTimeout(timeout);
-    if (error instanceof Error && error.name === "AbortError") {
+    if (error instanceof Error && error.name === 'AbortError') {
       return NextResponse.json(
-        { success: false, error: "Generation timed out after 5 minutes. Try again or reduce the niche scope." },
+        {
+          success: false,
+          error: 'Generation timed out after 5 minutes. Try again or reduce the niche scope.',
+        },
         { status: 504 }
       );
     }
-    const message = error instanceof Error ? error.message : "Generation failed";
-    return NextResponse.json(
-      { success: false, error: message },
-      { status: 500 }
-    );
+    const message = error instanceof Error ? error.message : 'Generation failed';
+    return NextResponse.json({ success: false, error: message }, { status: 500 });
   } finally {
     clearTimeout(timeout);
   }

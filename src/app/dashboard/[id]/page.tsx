@@ -1,21 +1,26 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useRef, useCallback } from "react";
-import { useParams } from "next/navigation";
-import { ProjectDetail } from "@/components/dashboard/project-detail";
-import { GenerationProgress } from "@/components/dashboard/generation-progress";
-import { DeployCelebration } from "@/components/dashboard/deploy-celebration";
-import type { SaaSProject, ProjectStatus } from "@/lib/projects";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useParams } from 'next/navigation';
+import { useEffect, useState, useRef, useCallback } from 'react';
+import { DeployCelebration } from '@/components/dashboard/deploy-celebration';
+import { GenerationProgress } from '@/components/dashboard/generation-progress';
+import { ProjectDetail } from '@/components/dashboard/project-detail';
+import { Skeleton } from '@/components/ui/skeleton';
+import type { SaaSProject, ProjectStatus } from '@/lib/projects';
 
 const POLL_INTERVAL = 5000; // 5 seconds
 
 // Terminal statuses — stop polling
-const TERMINAL = new Set<ProjectStatus>(["idle", "live"]);
+const TERMINAL = new Set<ProjectStatus>(['idle', 'live']);
 // Interactive statuses — stop polling, wait for user
-const AWAITING_INPUT = new Set<ProjectStatus>(["selecting"]);
+const AWAITING_INPUT = new Set<ProjectStatus>(['selecting']);
 // Show generation progress for these statuses
-const ACTIVE_STATUSES = new Set<ProjectStatus>(["researching", "generating_ideas", "building", "deploying"]);
+const ACTIVE_STATUSES = new Set<ProjectStatus>([
+  'researching',
+  'generating_ideas',
+  'building',
+  'deploying',
+]);
 
 export default function ProjectPage() {
   const params = useParams();
@@ -41,7 +46,7 @@ export default function ProjectPage() {
         if (data.success) {
           const newStatus = data.project.status;
           // Detect transition to "live"
-          if (prevStatusRef.current !== "live" && newStatus === "live") {
+          if (prevStatusRef.current !== 'live' && newStatus === 'live') {
             setShowCelebration(true);
           }
           prevStatusRef.current = newStatus;
@@ -87,9 +92,7 @@ export default function ProjectPage() {
 
   return (
     <div className="space-y-6">
-      {isActive && (
-        <GenerationProgress status={project.status} projectName={project.name} />
-      )}
+      {isActive && <GenerationProgress status={project.status} projectName={project.name} />}
       <ProjectDetail project={project} />
 
       {showCelebration && project.vercelUrl && (

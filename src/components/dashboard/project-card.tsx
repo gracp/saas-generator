@@ -1,33 +1,21 @@
-import Link from "next/link";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import {
-  FolderKanban,
-  Rocket,
-  Wrench,
-  ExternalLink,
-  GitBranch,
-} from "lucide-react";
-import type { ProjectStatus } from "@/lib/projects";
-import { STATUS_LABELS } from "@/lib/projects";
+import { FolderKanban, Rocket, Wrench, ExternalLink, GitBranch } from 'lucide-react';
+import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import type { ProjectStatus } from '@/lib/projects';
+import { STATUS_LABELS } from '@/lib/projects';
 
 const STATUS_COLORS: Record<ProjectStatus, string> = {
-  idle: "bg-zinc-500",
-  researching: "bg-blue-500",
-  generating_ideas: "bg-violet-500",
-  selecting: "bg-amber-500",
-  building: "bg-orange-500",
-  reviewing: "bg-cyan-500",
-  deploying: "bg-emerald-500",
-  live: "bg-green-500",
+  idle: 'bg-zinc-500',
+  researching: 'bg-blue-500',
+  generating_ideas: 'bg-violet-500',
+  selecting: 'bg-amber-500',
+  building: 'bg-orange-500',
+  reviewing: 'bg-cyan-500',
+  deploying: 'bg-emerald-500',
+  live: 'bg-green-500',
 };
 
 const PROGRESS_MAP: Record<ProjectStatus, number> = {
@@ -62,16 +50,11 @@ export function ProjectCard({ project }: { project: ProjectCardData }) {
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
             <div
-              className={`h-2 w-2 rounded-full ${STATUS_COLORS[project.status]} ${project.status === "live" ? "animate-pulse" : ""}`}
+              className={`h-2 w-2 rounded-full ${STATUS_COLORS[project.status]} ${project.status === 'live' ? 'animate-pulse' : ''}`}
             />
-            <CardTitle className="text-base text-zinc-100">
-              {project.name}
-            </CardTitle>
+            <CardTitle className="text-base text-zinc-100">{project.name}</CardTitle>
           </div>
-          <Badge
-            variant="secondary"
-            className="bg-zinc-800 text-zinc-400 text-[10px] border-0"
-          >
+          <Badge variant="secondary" className="bg-zinc-800 text-zinc-400 text-[10px] border-0">
             {STATUS_LABELS[project.status]}
           </Badge>
         </div>
@@ -129,24 +112,16 @@ export function ProjectCard({ project }: { project: ProjectCardData }) {
   );
 }
 
-export function StatsHeader({
-  projects,
-}: {
-  projects: ProjectCardData[];
-}) {
+export function StatsHeader({ projects }: { projects: ProjectCardData[] }) {
   const total = projects.length;
-  const live = projects.filter((p) => p.status === "live").length;
-  const building = projects.filter((p) =>
-    ["building", "reviewing"].includes(p.status)
-  ).length;
+  const live = projects.filter((p) => p.status === 'live').length;
+  const building = projects.filter((p) => ['building', 'reviewing'].includes(p.status)).length;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
       <Card className="bg-zinc-900 border-zinc-800">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-medium text-zinc-500">
-            Total Projects
-          </CardTitle>
+          <CardTitle className="text-xs font-medium text-zinc-500">Total Projects</CardTitle>
           <FolderKanban className="h-4 w-4 text-zinc-600" />
         </CardHeader>
         <CardContent>
@@ -156,9 +131,7 @@ export function StatsHeader({
 
       <Card className="bg-zinc-900 border-zinc-800">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-medium text-zinc-500">
-            Building
-          </CardTitle>
+          <CardTitle className="text-xs font-medium text-zinc-500">Building</CardTitle>
           <Wrench className="h-4 w-4 text-orange-500" />
         </CardHeader>
         <CardContent>
@@ -168,9 +141,7 @@ export function StatsHeader({
 
       <Card className="bg-zinc-900 border-zinc-800">
         <CardHeader className="flex flex-row items-center justify-between pb-2">
-          <CardTitle className="text-xs font-medium text-zinc-500">
-            Live
-          </CardTitle>
+          <CardTitle className="text-xs font-medium text-zinc-500">Live</CardTitle>
           <Rocket className="h-4 w-4 text-emerald-400" />
         </CardHeader>
         <CardContent>

@@ -4,8 +4,7 @@
  * Scrapes Reddit, Hacker News, and Product Hunt for market intelligence,
  * then synthesizes findings into a scored ResearchResult.
  */
-
-import type { ResearchResult } from "./projects";
+import type { ResearchResult } from './projects';
 
 // ─── Types ───────────────────────────────────────────────
 
@@ -30,29 +29,31 @@ export interface TrendsResult {
  * Search Exa for Reddit discussions about pain points in a niche.
  */
 async function searchExa(query: string, count = 5): Promise<string> {
-  const { execSync } = await import("child_process");
+  const { execSync } = await import('child_process');
   // Use curl to call Exa API — requires EXA_API_KEY env var
   const apiKey = process.env.EXA_API_KEY;
   if (!apiKey) {
-    throw new Error("EXA_API_KEY not set");
+    throw new Error('EXA_API_KEY not set');
   }
   const result = execSync(
     `curl -s "https://api.exa.ai/search" \\
       -H "Authorization: Bearer ${apiKey}" \\
       -H "Content-Type: application/json" \\
       -d '{"query": "${query.replace(/"/g, '\\"')}", "numResults": ${count}, "type": "auto"}'`,
-    { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] }
+    { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
   );
   return result;
 }
 
-function parseExaResults(raw: string): Array<{title: string; url: string; summary: string; score?: number}> {
+function parseExaResults(
+  raw: string
+): Array<{ title: string; url: string; summary: string; score?: number }> {
   try {
     const parsed = JSON.parse(raw);
     return (parsed.results ?? []).map((r: Record<string, unknown>) => ({
-      title: r.title ?? "",
-      url: r.url ?? "",
-      summary: typeof r.summary === "string" ? r.summary : "",
+      title: r.title ?? '',
+      url: r.url ?? '',
+      summary: typeof r.summary === 'string' ? r.summary : '',
       score: r.score ?? 0,
     }));
   } catch {
@@ -67,7 +68,10 @@ function parseExaResults(raw: string): Array<{title: string; url: string; summar
  */
 export async function searchReddit(topic: string): Promise<RedditPost[]> {
   try {
-    const raw = await searchExa(`site:reddit.com ${topic} freelance pain points OR struggles OR problems`, 6);
+    const raw = await searchExa(
+      `site:reddit.com ${topic} freelance pain points OR struggles OR problems`,
+      6
+    );
     const results = parseExaResults(raw);
     return results.map((r) => ({
       title: r.title,
@@ -161,23 +165,33 @@ export async function synthesizeResearch(
 
 function extractSubreddit(url: string): string {
   const m = url.match(/reddit\.com\/r\/([^/]+)/);
-  return m ? `r/${m[1]}` : "reddit";
+  return m ? `r/${m[1]}` : 'reddit';
 }
 
 function extractPainPoints(hnDiscussions: string[], niche: string): string[] {
   // Simple keyword-based pain point extraction
   const painKeywords = [
-    "time consuming", "frustrat", "difficult", "expensive", "manag",
-    "track", "organiz", "automate", "integrat", "sync", "report",
-    "invoice", "tax", "payment", "client",
+    'time consuming',
+    'frustrat',
+    'difficult',
+    'expensive',
+    'manag',
+    'track',
+    'organiz',
+    'automate',
+    'integrat',
+    'sync',
+    'report',
+    'invoice',
+    'tax',
+    'payment',
+    'client',
   ];
   const pains: string[] = [];
   for (const disc of hnDiscussions) {
     for (const kw of painKeywords) {
       if (disc.toLowerCase().includes(kw)) {
-        const normalized = disc
-          .replace(new RegExp(`.*?${kw}.*?(?:\\b)`, "i"), "")
-          .slice(0, 80);
+        const normalized = disc.replace(new RegExp(`.*?${kw}.*?(?:\\b)`, 'i'), '').slice(0, 80);
         if (normalized.length > 10) {
           pains.push(normalized);
         }
@@ -193,16 +207,17 @@ function extractPainPoints(hnDiscussions: string[], niche: string): string[] {
 
 function featureFromPain(pain: string): string {
   const lower = pain.toLowerCase();
-  if (lower.includes("time") || lower.includes("consum")) return "Automated workflows to save time";
-  if (lower.includes("track") || lower.includes("manag")) return "Unified dashboard for tracking";
-  if (lower.includes("invoice") || lower.includes("payment")) return "Integrated payment processing";
-  if (lower.includes("tax")) return "Tax estimate calculator";
-  if (lower.includes("report")) return "Automated reporting";
-  return "AI-powered automation";
+  if (lower.includes('time') || lower.includes('consum')) return 'Automated workflows to save time';
+  if (lower.includes('track') || lower.includes('manag')) return 'Unified dashboard for tracking';
+  if (lower.includes('invoice') || lower.includes('payment'))
+    return 'Integrated payment processing';
+  if (lower.includes('tax')) return 'Tax estimate calculator';
+  if (lower.includes('report')) return 'Automated reporting';
+  return 'AI-powered automation';
 }
 
 function guessPricing(demand: number, competition: number): string {
-  if (demand > 80 && competition < 60) return "$29/mo";
-  if (demand > 70) return "$19/mo";
-  return "$12/mo";
+  if (demand > 80 && competition < 60) return '$29/mo';
+  if (demand > 70) return '$19/mo';
+  return '$12/mo';
 }

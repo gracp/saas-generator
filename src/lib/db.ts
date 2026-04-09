@@ -5,18 +5,17 @@
  *   npx prisma generate    # generate Prisma client
  *   npx prisma migrate dev # run migrations
  */
-
-import type { PrismaClient as PrismaClientType } from "@prisma/client";
-import type { Project, User } from "@prisma/client";
+import type { PrismaClient as PrismaClientType } from '@prisma/client';
+import type { Project, User } from '@prisma/client';
 
 let _prisma: PrismaClientType | null = null;
 
 // System user ID used when auth is not yet wired
-const SYSTEM_USER_ID = "system-user";
+const SYSTEM_USER_ID = 'system-user';
 
 async function getPrisma(): Promise<PrismaClientType> {
   if (_prisma) return _prisma;
-  const { PrismaClient } = await import("@prisma/client");
+  const { PrismaClient } = await import('@prisma/client');
   _prisma = new PrismaClient();
   return _prisma;
 }
@@ -36,7 +35,7 @@ export async function dbUpsertUser({
   return prisma.user.upsert({
     where: { email },
     update: { name, image },
-    create: { email, name, image, plan: "free" },
+    create: { email, name, image, plan: 'free' },
   });
 }
 
@@ -53,7 +52,7 @@ export async function dbGetUserByCustomerId(stripeCustomerId: string): Promise<U
 export async function dbUpdateUserPlan(
   email: string,
   stripeCustomerId: string,
-  plan: "free" | "maker" | "studio"
+  plan: 'free' | 'maker' | 'studio'
 ): Promise<void> {
   const prisma = await getPrisma();
   await prisma.user.update({
@@ -62,10 +61,7 @@ export async function dbUpdateUserPlan(
   });
 }
 
-export async function dbUpdateUser(
-  email: string,
-  data: Partial<User>
-): Promise<User> {
+export async function dbUpdateUser(email: string, data: Partial<User>): Promise<User> {
   const prisma = await getPrisma();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return prisma.user.update({ where: { email }, data: data as any });
@@ -86,7 +82,7 @@ export async function dbCreateProject({
     data: {
       name,
       userId: uid,
-      status: "idle",
+      status: 'idle',
       events: [],
     },
   });
@@ -100,13 +96,10 @@ export async function dbGetProject(id: string): Promise<Project | null> {
 export async function dbGetAllProjects(opts?: { userId?: string }): Promise<Project[]> {
   const prisma = await getPrisma();
   const where = opts?.userId ? { userId: opts.userId } : {};
-  return prisma.project.findMany({ where, orderBy: { createdAt: "desc" } });
+  return prisma.project.findMany({ where, orderBy: { createdAt: 'desc' } });
 }
 
-export async function dbUpdateProject(
-  id: string,
-  data: Partial<Project>
-): Promise<Project> {
+export async function dbUpdateProject(id: string, data: Partial<Project>): Promise<Project> {
   const prisma = await getPrisma();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return prisma.project.update({ where: { id }, data: data as any });

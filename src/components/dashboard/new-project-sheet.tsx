@@ -1,8 +1,11 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Sparkles, Loader2, CheckCircle2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useToast } from '@/components/providers/toast-provider';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Sheet,
   SheetContent,
@@ -10,11 +13,8 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
-import { Sparkles, Loader2, CheckCircle2 } from "lucide-react";
-import type { GeneratedIdea } from "@/lib/projects";
-import { useToast } from "@/components/providers/toast-provider";
+} from '@/components/ui/sheet';
+import type { GeneratedIdea } from '@/lib/projects';
 
 export function NewProjectSheet({
   open: controlledOpen,
@@ -30,8 +30,8 @@ export function NewProjectSheet({
     if (onOpenChange) onOpenChange(v);
     else setInternalOpen(v);
   }
-  const [name, setName] = useState("");
-  const [niche, setNiche] = useState("");
+  const [name, setName] = useState('');
+  const [niche, setNiche] = useState('');
   const [loading, setLoading] = useState(false);
   const [ideas, setIdeas] = useState<GeneratedIdea[] | null>(null);
   const [projectId, setProjectId] = useState<string | null>(null);
@@ -53,9 +53,9 @@ export function NewProjectSheet({
     }, 4000);
 
     try {
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           projectName: name.trim(),
           niche: niche.trim() || undefined,
@@ -70,13 +70,13 @@ export function NewProjectSheet({
         setIdeas(data.ideas);
         setProjectId(data.project?.id ?? null);
       } else {
-        toast(data.error ?? "Generation failed", "error");
+        toast(data.error ?? 'Generation failed', 'error');
         setLoading(false);
         setGenerationStep(0);
       }
     } catch {
       clearInterval(stepInterval);
-      toast("Network error — please try again", "error");
+      toast('Network error — please try again', 'error');
       setLoading(false);
       setGenerationStep(0);
     }
@@ -89,16 +89,16 @@ export function NewProjectSheet({
 
     try {
       const res = await fetch(`/api/projects/${projectId}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "select-idea", ideaIndex: idx }),
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'select-idea', ideaIndex: idx }),
       });
       const data = await res.json();
       if (data.success) {
         setShowIdeaCelebration(true);
         setOpen(false);
-        setName("");
-        setNiche("");
+        setName('');
+        setNiche('');
         setIdeas(null);
         setProjectId(null);
         setSelectedIdeaIdx(null);
@@ -107,10 +107,10 @@ export function NewProjectSheet({
           router.push(`/dashboard/${projectId}`);
         }, 1500);
       } else {
-        toast(data.error ?? "Failed to start build", "error");
+        toast(data.error ?? 'Failed to start build', 'error');
       }
     } catch {
-      toast("Network error — please try again", "error");
+      toast('Network error — please try again', 'error');
     } finally {
       setSelecting(false);
       setSelectedIdeaIdx(null);
@@ -126,7 +126,15 @@ export function NewProjectSheet({
   }
 
   return (
-    <Sheet open={open} onOpenChange={(v) => { if (!v) { handleClose(); } setOpen(v); }}>
+    <Sheet
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) {
+          handleClose();
+        }
+        setOpen(v);
+      }}
+    >
       <SheetTrigger>
         <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-violet-600 hover:bg-violet-700 text-white text-sm font-semibold cursor-pointer">
           <Sparkles className="h-4 w-4" />
@@ -136,12 +144,12 @@ export function NewProjectSheet({
       <SheetContent className="bg-zinc-950 border-zinc-800 overflow-y-auto">
         <SheetHeader>
           <SheetTitle className="text-zinc-100">
-            {ideas ? "Choose your idea" : "Generate a new SaaS"}
+            {ideas ? 'Choose your idea' : 'Generate a new SaaS'}
           </SheetTitle>
           <SheetDescription className="text-zinc-500">
             {ideas
-              ? "Pick the idea you like best — agents will start building immediately."
-              : "AI will research the market, generate ideas, and build the app."}
+              ? 'Pick the idea you like best — agents will start building immediately.'
+              : 'AI will research the market, generate ideas, and build the app.'}
           </SheetDescription>
         </SheetHeader>
 
@@ -149,9 +157,7 @@ export function NewProjectSheet({
           // ─── Step 1: Enter project name ───
           <div className="mt-8 space-y-6">
             <div className="space-y-2">
-              <label className="text-xs font-medium text-zinc-400">
-                Project Name
-              </label>
+              <label className="text-xs font-medium text-zinc-400">Project Name</label>
               <Input
                 placeholder="e.g., InvoicePilot"
                 value={name}
@@ -161,9 +167,7 @@ export function NewProjectSheet({
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-medium text-zinc-400">
-                Niche (optional)
-              </label>
+              <label className="text-xs font-medium text-zinc-400">Niche (optional)</label>
               <Input
                 placeholder="e.g., AI invoicing for freelancers"
                 value={niche}
@@ -177,9 +181,7 @@ export function NewProjectSheet({
 
             <div className="pt-4 border-t border-zinc-800">
               <div className="rounded-lg bg-zinc-900 border border-zinc-800 p-4 space-y-3">
-                <p className="text-xs font-medium text-zinc-400">
-                  What happens next:
-                </p>
+                <p className="text-xs font-medium text-zinc-400">What happens next:</p>
                 <ol className="text-[11px] text-zinc-500 space-y-1.5">
                   <li>1. AI researches the market and competition</li>
                   <li>2. 3 SaaS ideas generated with validation scores</li>
@@ -200,12 +202,12 @@ export function NewProjectSheet({
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                   {generationStep === 1
-                    ? "Starting..."
+                    ? 'Starting...'
                     : generationStep === 2
-                    ? "Researching market..."
-                    : generationStep === 3
-                    ? "Generating ideas..."
-                    : "Finalizing..."}
+                      ? 'Researching market...'
+                      : generationStep === 3
+                        ? 'Generating ideas...'
+                        : 'Finalizing...'}
                 </>
               ) : (
                 <>
@@ -219,19 +221,19 @@ export function NewProjectSheet({
             {loading && (
               <div className="mt-4 space-y-1.5">
                 {[
-                  { step: 1, label: "Initializing project" },
-                  { step: 2, label: "Researching market & competitors" },
-                  { step: 3, label: "Generating SaaS ideas" },
+                  { step: 1, label: 'Initializing project' },
+                  { step: 2, label: 'Researching market & competitors' },
+                  { step: 3, label: 'Generating SaaS ideas' },
                 ].map(({ step, label }) => (
                   <div key={step} className="flex items-center gap-2">
                     <div
                       className={`h-1.5 w-1.5 rounded-full shrink-0 transition-colors ${
-                        generationStep >= step ? "bg-violet-500" : "bg-zinc-700"
+                        generationStep >= step ? 'bg-violet-500' : 'bg-zinc-700'
                       }`}
                     />
                     <span
                       className={`text-[11px] transition-colors ${
-                        generationStep >= step ? "text-zinc-300" : "text-zinc-600"
+                        generationStep >= step ? 'text-zinc-300' : 'text-zinc-600'
                       }`}
                     >
                       {label}
@@ -262,22 +264,18 @@ export function NewProjectSheet({
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-zinc-100 text-sm">
-                      {idea.name}
-                    </p>
+                    <p className="font-semibold text-zinc-100 text-sm">{idea.name}</p>
                     <p className="text-xs text-zinc-400 mt-0.5">{idea.tagline}</p>
-                    <p className="text-[10px] text-zinc-500 mt-1 truncate">
-                      {idea.monetization}
-                    </p>
+                    <p className="text-[10px] text-zinc-500 mt-1 truncate">{idea.monetization}</p>
                   </div>
                   <div className="shrink-0 text-right">
                     <span
                       className={`text-xs font-bold ${
                         idea.validationScore >= 80
-                          ? "text-emerald-400"
+                          ? 'text-emerald-400'
                           : idea.validationScore >= 65
-                          ? "text-amber-400"
-                          : "text-zinc-500"
+                            ? 'text-amber-400'
+                            : 'text-zinc-500'
                       }`}
                     >
                       {idea.validationScore}

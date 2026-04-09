@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Sparkles, Rocket, CheckCircle2, ChevronRight, ChevronLeft, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { trackEvent } from "@/lib/analytics";
+import { Sparkles, Rocket, CheckCircle2, ChevronRight, ChevronLeft, X } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { trackEvent } from '@/lib/analytics';
 
 interface OnboardingWizardProps {
   onComplete: () => void;
@@ -12,48 +12,52 @@ interface OnboardingWizardProps {
 }
 
 const NICHE_CARDS = [
-  { emoji: "🚀", label: "SaaS", value: "saas", trending: true },
-  { emoji: "📝", label: "Productivity", value: "productivity", trending: false },
-  { emoji: "💰", label: "Finance", value: "finance", trending: false },
-  { emoji: "🎨", label: "Design", value: "design", trending: false },
-  { emoji: "📱", label: "Mobile", value: "mobile", trending: false },
-  { emoji: "🤖", label: "AI", value: "ai", trending: true },
+  { emoji: '🚀', label: 'SaaS', value: 'saas', trending: true },
+  { emoji: '📝', label: 'Productivity', value: 'productivity', trending: false },
+  { emoji: '💰', label: 'Finance', value: 'finance', trending: false },
+  { emoji: '🎨', label: 'Design', value: 'design', trending: false },
+  { emoji: '📱', label: 'Mobile', value: 'mobile', trending: false },
+  { emoji: '🤖', label: 'AI', value: 'ai', trending: true },
 ];
 
 const SAMPLE_IDEAS: Record<string, { name: string; tagline: string; score: string }[]> = {
   saas: [
-    { name: "CodeFlow", tagline: "AI-powered code review for dev teams", score: "94" },
-    { name: "Meetly", tagline: "Smart scheduling that actually works", score: "89" },
-    { name: "Stackwise", tagline: "Track your tech stack dependencies", score: "87" },
+    { name: 'CodeFlow', tagline: 'AI-powered code review for dev teams', score: '94' },
+    { name: 'Meetly', tagline: 'Smart scheduling that actually works', score: '89' },
+    { name: 'Stackwise', tagline: 'Track your tech stack dependencies', score: '87' },
   ],
   ai: [
-    { name: "PromptBase", tagline: "Marketplace for AI prompts", score: "92" },
-    { name: "AIWriter Pro", tagline: "Long-form content generation", score: "88" },
-    { name: "ImageAI Studio", tagline: "Custom image generation for brands", score: "91" },
+    { name: 'PromptBase', tagline: 'Marketplace for AI prompts', score: '92' },
+    { name: 'AIWriter Pro', tagline: 'Long-form content generation', score: '88' },
+    { name: 'ImageAI Studio', tagline: 'Custom image generation for brands', score: '91' },
   ],
   productivity: [
-    { name: "FocusTimer", tagline: "Pomodoro with team sync", score: "86" },
-    { name: "NoteFlow", tagline: "Notes that connect themselves", score: "84" },
-    { name: "TaskMap", tagline: "Visual task management", score: "82" },
+    { name: 'FocusTimer', tagline: 'Pomodoro with team sync', score: '86' },
+    { name: 'NoteFlow', tagline: 'Notes that connect themselves', score: '84' },
+    { name: 'TaskMap', tagline: 'Visual task management', score: '82' },
   ],
   finance: [
-    { name: "Spendly", tagline: "Track expenses with AI insights", score: "90" },
-    { name: "InvoiceAI", tagline: "Smart invoicing for freelancers", score: "85" },
-    { name: "BudgetFlow", tagline: "Automated budget planning", score: "83" },
+    { name: 'Spendly', tagline: 'Track expenses with AI insights', score: '90' },
+    { name: 'InvoiceAI', tagline: 'Smart invoicing for freelancers', score: '85' },
+    { name: 'BudgetFlow', tagline: 'Automated budget planning', score: '83' },
   ],
   design: [
-    { name: "ColorAI", tagline: "AI color palette generator", score: "88" },
-    { name: "MockupMagic", tagline: "Instant design mockups", score: "86" },
-    { name: "FontPair", tagline: "AI font pairing assistant", score: "84" },
+    { name: 'ColorAI', tagline: 'AI color palette generator', score: '88' },
+    { name: 'MockupMagic', tagline: 'Instant design mockups', score: '86' },
+    { name: 'FontPair', tagline: 'AI font pairing assistant', score: '84' },
   ],
   mobile: [
-    { name: "FitTrack AI", tagline: "Personalized fitness plans", score: "89" },
-    { name: "MealSnap", tagline: "Track meals by photo", score: "87" },
-    { name: "SleepWise", tagline: "Sleep quality analyzer", score: "85" },
+    { name: 'FitTrack AI', tagline: 'Personalized fitness plans', score: '89' },
+    { name: 'MealSnap', tagline: 'Track meals by photo', score: '87' },
+    { name: 'SleepWise', tagline: 'Sleep quality analyzer', score: '85' },
   ],
 };
 
-export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }: OnboardingWizardProps) {
+export function OnboardingWizard({
+  onComplete,
+  onSkip,
+  selectedNiche = 'saas',
+}: OnboardingWizardProps) {
   const [step, setStep] = useState(1);
   const [selectedNicheState, setSelectedNicheState] = useState(selectedNiche);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -83,8 +87,8 @@ export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }:
   };
 
   const handleComplete = () => {
-    trackEvent("onboarding_completed", { niche: selectedNicheState });
-    fetch("/api/onboarding/complete", { method: "POST" })
+    trackEvent('onboarding_completed', { niche: selectedNicheState });
+    fetch('/api/onboarding/complete', { method: 'POST' })
       .then(() => onComplete())
       .catch(() => onComplete());
   };
@@ -99,7 +103,7 @@ export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }:
       {/* Modal */}
       <div
         className={`relative bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl w-full max-w-lg mx-4 transition-all duration-200 ${
-          isAnimating ? "opacity-0 scale-95" : "opacity-100 scale-100"
+          isAnimating ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
         }`}
       >
         {/* Close button */}
@@ -117,10 +121,10 @@ export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }:
               key={s}
               className={`h-2 rounded-full transition-all duration-300 ${
                 s === step
-                  ? "w-8 bg-violet-500"
+                  ? 'w-8 bg-violet-500'
                   : s < step
-                  ? "w-2 bg-violet-500"
-                  : "w-2 bg-zinc-700"
+                    ? 'w-2 bg-violet-500'
+                    : 'w-2 bg-zinc-700'
               }`}
             />
           ))}
@@ -148,8 +152,8 @@ export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }:
                     onClick={() => setSelectedNicheState(niche.value)}
                     className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border transition-all duration-200 ${
                       selectedNicheState === niche.value
-                        ? "border-violet-500 bg-violet-500/10"
-                        : "border-zinc-800 bg-zinc-800/50 hover:border-zinc-700"
+                        ? 'border-violet-500 bg-violet-500/10'
+                        : 'border-zinc-800 bg-zinc-800/50 hover:border-zinc-700'
                     }`}
                   >
                     {niche.trending && (
@@ -167,10 +171,7 @@ export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }:
                 <Button variant="ghost" size="sm" onClick={onSkip}>
                   Skip
                 </Button>
-                <Button
-                  onClick={goNext}
-                  className="bg-violet-600 hover:bg-violet-700 text-white"
-                >
+                <Button onClick={goNext} className="bg-violet-600 hover:bg-violet-700 text-white">
                   Next
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
@@ -185,9 +186,15 @@ export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }:
                 <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-violet-500/10 mb-4">
                   <Sparkles className="h-6 w-6 text-violet-400" />
                 </div>
-                <h2 className="text-xl font-bold text-zinc-100">Here&apos;s what we&apos;ll build for you</h2>
+                <h2 className="text-xl font-bold text-zinc-100">
+                  Here&apos;s what we&apos;ll build for you
+                </h2>
                 <p className="text-sm text-zinc-400">
-                  Based on your <span className="text-violet-400 font-medium">{NICHE_CARDS.find(n => n.value === selectedNicheState)?.label}</span> niche
+                  Based on your{' '}
+                  <span className="text-violet-400 font-medium">
+                    {NICHE_CARDS.find((n) => n.value === selectedNicheState)?.label}
+                  </span>{' '}
+                  niche
                 </p>
               </div>
 
@@ -196,7 +203,7 @@ export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }:
                   <div
                     key={idea.name}
                     className={`flex items-center justify-between p-4 rounded-xl border border-zinc-800 bg-zinc-800/50 transition-all duration-300 ${
-                      showIdeas ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
+                      showIdeas ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
                     }`}
                     style={{ transitionDelay: `${i * 150}ms` }}
                   >
@@ -217,10 +224,7 @@ export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }:
                   <ChevronLeft className="h-4 w-4 mr-1" />
                   Back
                 </Button>
-                <Button
-                  onClick={goNext}
-                  className="bg-violet-600 hover:bg-violet-700 text-white"
-                >
+                <Button onClick={goNext} className="bg-violet-600 hover:bg-violet-700 text-white">
                   Next
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
@@ -240,7 +244,9 @@ export function OnboardingWizard({ onComplete, onSkip, selectedNiche = "saas" }:
                   </div>
                 </div>
 
-                <h2 className="text-xl font-bold text-zinc-100">Ready to launch your SaaS empire?</h2>
+                <h2 className="text-xl font-bold text-zinc-100">
+                  Ready to launch your SaaS empire?
+                </h2>
                 <p className="text-sm text-zinc-400">
                   You&apos;re minutes away from having your own AI-powered SaaS application
                 </p>

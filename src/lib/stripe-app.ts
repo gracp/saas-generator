@@ -1,4 +1,4 @@
-import Stripe from "stripe";
+import Stripe from 'stripe';
 
 // ─── Idempotency store for webhook events ─────────────────────────────────
 const processedEvents = new Map<string, number>(); // eventId -> timestamp
@@ -28,7 +28,7 @@ let _stripe: Stripe | null = null;
 export function getStripe(): Stripe {
   if (!_stripe) {
     if (!process.env.STRIPE_SECRET_KEY) {
-      throw new Error("STRIPE_SECRET_KEY is not set in environment");
+      throw new Error('STRIPE_SECRET_KEY is not set in environment');
     }
     _stripe = new Stripe(process.env.STRIPE_SECRET_KEY, { typescript: true });
   }
@@ -36,16 +36,24 @@ export function getStripe(): Stripe {
 }
 
 export const stripe = {
-  get checkout() { return getStripe().checkout; },
-  get billingPortal() { return getStripe().billingPortal; },
-  get subscriptions() { return getStripe().subscriptions; },
-  get webhooks() { return getStripe().webhooks; },
+  get checkout() {
+    return getStripe().checkout;
+  },
+  get billingPortal() {
+    return getStripe().billingPortal;
+  },
+  get subscriptions() {
+    return getStripe().subscriptions;
+  },
+  get webhooks() {
+    return getStripe().webhooks;
+  },
 };
 
 // ─── Price IDs from env ─────────────────────────────────
 export const PLANS = {
-  maker: process.env.STRIPE_PRICE_MAKER ?? "",
-  studio: process.env.STRIPE_PRICE_STUDIO ?? "",
+  maker: process.env.STRIPE_PRICE_MAKER ?? '',
+  studio: process.env.STRIPE_PRICE_STUDIO ?? '',
 } as const;
 
 // ─── Checkout ───────────────────────────────────────────
@@ -61,8 +69,8 @@ export async function createCheckoutSession({
   returnUrl: string;
 }) {
   const session = await stripe.checkout.sessions.create({
-    mode: "subscription",
-    payment_method_types: ["card"],
+    mode: 'subscription',
+    payment_method_types: ['card'],
     line_items: [{ price: priceId, quantity: 1 }],
     customer_email: userEmail,
     metadata: { userId, userEmail },
@@ -88,33 +96,26 @@ export async function createPortalSession({
 }
 
 // ─── Webhook signature verification ─────────────────────
-export function constructWebhookEvent(
-  payload: string | Buffer,
-  signature: string
-) {
+export function constructWebhookEvent(payload: string | Buffer, signature: string) {
   if (!process.env.STRIPE_WEBHOOK_SECRET) {
-    throw new Error("STRIPE_WEBHOOK_SECRET is not set");
+    throw new Error('STRIPE_WEBHOOK_SECRET is not set');
   }
-  return stripe.webhooks.constructEvent(
-    payload,
-    signature,
-    process.env.STRIPE_WEBHOOK_SECRET
-  );
+  return stripe.webhooks.constructEvent(payload, signature, process.env.STRIPE_WEBHOOK_SECRET);
 }
 
 // ─── Get subscription from Stripe ─────────────────────
 export async function getSubscription(customerId: string) {
   const subscriptions = await stripe.subscriptions.list({
     customer: customerId,
-    status: "active",
+    status: 'active',
     limit: 1,
   });
   return subscriptions.data[0] ?? null;
 }
 
 // ─── Determine plan from price ID ───────────────────────
-export function planFromPriceId(priceId: string): "free" | "maker" | "studio" {
-  if (priceId === process.env.STRIPE_PRICE_MAKER) return "maker";
-  if (priceId === process.env.STRIPE_PRICE_STUDIO) return "studio";
-  return "free";
+export function planFromPriceId(priceId: string): 'free' | 'maker' | 'studio' {
+  if (priceId === process.env.STRIPE_PRICE_MAKER) return 'maker';
+  if (priceId === process.env.STRIPE_PRICE_STUDIO) return 'studio';
+  return 'free';
 }

@@ -1,8 +1,8 @@
-"use client";
-import { createContext, useContext, useState, useCallback, ReactNode } from "react";
-import { CheckCircle2, AlertCircle, Info, X } from "lucide-react";
+'use client';
+import { CheckCircle2, AlertCircle, Info, X } from 'lucide-react';
+import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
 
-type ToastType = "success" | "error" | "info";
+type ToastType = 'success' | 'error' | 'info';
 
 interface Toast {
   id: string;
@@ -31,9 +31,9 @@ const ICONS = {
 };
 
 const BG = {
-  success: "border-emerald-500/30 bg-emerald-950/50",
-  error: "border-red-500/30 bg-red-950/50",
-  info: "border-violet-500/30 bg-violet-950/50",
+  success: 'border-emerald-500/30 bg-emerald-950/50',
+  error: 'border-red-500/30 bg-red-950/50',
+  info: 'border-violet-500/30 bg-violet-950/50',
 };
 
 export function ToastProvider({ children }: { children: ReactNode }) {
@@ -43,11 +43,14 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   }, []);
 
-  const toast = useCallback((message: string, type: ToastType = "info") => {
-    const id = Math.random().toString(36).slice(2);
-    setToasts((prev) => [...prev, { id, type, message }]);
-    setTimeout(() => dismiss(id), 4000);
-  }, [dismiss]);
+  const toast = useCallback(
+    (message: string, type: ToastType = 'info') => {
+      const id = Math.random().toString(36).slice(2);
+      setToasts((prev) => [...prev, { id, type, message }]);
+      setTimeout(() => dismiss(id), 4000);
+    },
+    [dismiss]
+  );
 
   return (
     <ToastContext.Provider value={{ toast, dismiss }}>

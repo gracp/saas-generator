@@ -1,54 +1,52 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { ClientProviders } from "@/components/providers/client-providers";
+import type { Metadata } from 'next';
+import { ClientProviders } from '@/components/providers/client-providers';
+import './globals.css';
 
 const ORG_SCHEMA = {
-  "@context": "https://schema.org",
-  "@type": "SoftwareApplication",
-  name: "SaaS Generator",
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'SaaS Generator',
   description:
-    "AI researches your niche, generates the SaaS, builds the code, and deploys it. You just pick the winners.",
-  url: process.env.NEXTAUTH_URL ?? "http://localhost:3457",
-  applicationCategory: "BusinessApplication",
-  operatingSystem: "Web",
+    'AI researches your niche, generates the SaaS, builds the code, and deploys it. You just pick the winners.',
+  url: process.env.NEXTAUTH_URL ?? 'http://localhost:3457',
+  applicationCategory: 'BusinessApplication',
+  operatingSystem: 'Web',
   offers: {
-    "@type": "Offer",
-    price: "0",
-    priceCurrency: "USD",
-    description: "Free tier available",
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+    description: 'Free tier available',
   },
   creator: {
-    "@type": "Organization",
-    name: "SaaS Generator",
-    url: "https://saasgenerator.ai",
+    '@type': 'Organization',
+    name: 'SaaS Generator',
+    url: 'https://saasgenerator.ai',
   },
 };
 
 export const metadata: Metadata = {
-  title: "SaaS Generator — From Idea to Launch in Minutes",
+  title: 'SaaS Generator — From Idea to Launch in Minutes',
   description:
-    "AI researches your niche, generates the SaaS, builds the code, and deploys it. You just pick the winners.",
+    'AI researches your niche, generates the SaaS, builds the code, and deploys it. You just pick the winners.',
   keywords: [
-    "SaaS generator",
-    "AI app builder",
-    "micro SaaS",
-    "indie hacker tools",
-    "launch faster",
-    "Next.js SaaS",
+    'SaaS generator',
+    'AI app builder',
+    'micro SaaS',
+    'indie hacker tools',
+    'launch faster',
+    'Next.js SaaS',
   ],
-  authors: [{ name: "SaaS Generator" }],
+  authors: [{ name: 'SaaS Generator' }],
   openGraph: {
-    title: "SaaS Generator — From Idea to Launch in Minutes",
-    description:
-      "AI researches your niche, generates the SaaS, builds the code, and deploys it.",
-    type: "website",
-    locale: "en_US",
+    title: 'SaaS Generator — From Idea to Launch in Minutes',
+    description: 'AI researches your niche, generates the SaaS, builds the code, and deploys it.',
+    type: 'website',
+    locale: 'en_US',
   },
   twitter: {
-    card: "summary_large_image",
-    title: "SaaS Generator — From Idea to Launch in Minutes",
-    description:
-      "AI researches your niche, generates the SaaS, builds the code, and deploys it.",
+    card: 'summary_large_image',
+    title: 'SaaS Generator — From Idea to Launch in Minutes',
+    description: 'AI researches your niche, generates the SaaS, builds the code, and deploys it.',
   },
   robots: {
     index: true,

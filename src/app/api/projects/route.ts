@@ -1,8 +1,8 @@
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
-import { getAllProjects } from "@/lib/projects";
-import { rateLimit, getClientIp, RATE_LIMITS } from "@/lib/rate-limit";
+import { getServerSession } from 'next-auth';
+import { NextResponse } from 'next/server';
+import { authOptions } from '@/lib/auth';
+import { getAllProjects } from '@/lib/projects';
+import { rateLimit, getClientIp, RATE_LIMITS } from '@/lib/rate-limit';
 
 // GET /api/projects — list all projects (scoped to authenticated user)
 export async function GET(request: Request) {
@@ -10,8 +10,8 @@ export async function GET(request: Request) {
   const limited = rateLimit({ key: `projects:${ip}`, ...RATE_LIMITS.api });
   if (!limited.ok) {
     return NextResponse.json(
-      { success: false, error: "Too many requests" },
-      { status: 429, headers: { "Retry-After": String(limited.retryAfter) } }
+      { success: false, error: 'Too many requests' },
+      { status: 429, headers: { 'Retry-After': String(limited.retryAfter) } }
     );
   }
 

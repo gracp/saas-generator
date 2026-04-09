@@ -1,7 +1,5 @@
-"use client";
+'use client';
 
-import { useEffect, useRef, useState } from "react";
-import { copy } from "@/lib/copy";
 import {
   ArrowRight,
   Check,
@@ -22,7 +20,9 @@ import {
   Globe,
   Star,
   X,
-} from "lucide-react";
+} from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { copy } from '@/lib/copy';
 
 /* ─── Beta Banner ───────────────────────────────────────────────── */
 function BetaBanner() {
@@ -31,7 +31,7 @@ function BetaBanner() {
   return (
     <div className="relative bg-violet-600 text-white text-xs font-medium px-4 py-2 text-center">
       <span className="hidden sm:inline">
-        🎁 Beta pricing: 40% off Maker plan for early adopters — 
+        🎁 Beta pricing: 40% off Maker plan for early adopters —
       </span>
       <span className="sm:hidden">🎁 Beta pricing: 40% off for early adopters — </span>
       <a href="#pricing" className="underline hover:no-underline font-semibold">
@@ -78,9 +78,7 @@ function Testimonials() {
           <p className="text-violet-400 text-sm font-semibold uppercase tracking-wider mb-3">
             Maker stories
           </p>
-          <h2 className="text-3xl sm:text-4xl font-bold text-zinc-100">
-            Real makers, real SaaS.
-          </h2>
+          <h2 className="text-3xl sm:text-4xl font-bold text-zinc-100">Real makers, real SaaS.</h2>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {copy.testimonials.map((t, i) => (
@@ -93,7 +91,9 @@ function Testimonials() {
                   <Star key={j} className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
                 ))}
               </div>
-              <p className="text-sm text-zinc-300 leading-relaxed flex-1">&ldquo;{t.quote}&rdquo;</p>
+              <p className="text-sm text-zinc-300 leading-relaxed flex-1">
+                &ldquo;{t.quote}&rdquo;
+              </p>
               <div className="flex items-center gap-3 pt-3 border-t border-zinc-800">
                 <div className="w-8 h-8 rounded-full bg-violet-600 flex items-center justify-center text-white text-xs font-bold">
                   {t.avatar}
@@ -121,7 +121,10 @@ function TechStack() {
         </p>
         <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
           {copy.techStack.logos.map((logo) => (
-            <span key={logo} className="text-sm font-semibold text-zinc-500 hover:text-zinc-300 transition-colors">
+            <span
+              key={logo}
+              className="text-sm font-semibold text-zinc-500 hover:text-zinc-300 transition-colors"
+            >
               {logo}
             </span>
           ))}
@@ -143,14 +146,14 @@ function useReveal() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("visible");
+            entry.target.classList.add('visible');
           }
         });
       },
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
     );
 
-    const targets = el.querySelectorAll(".reveal");
+    const targets = el.querySelectorAll('.reveal');
     targets.forEach((t) => observer.observe(t));
 
     return () => observer.disconnect();
@@ -273,11 +276,7 @@ function HowItWorks() {
   const sectionRef = useReveal();
 
   return (
-    <section
-      id="how-it-works"
-      ref={sectionRef}
-      className="relative py-24 sm:py-32 px-4"
-    >
+    <section id="how-it-works" ref={sectionRef} className="relative py-24 sm:py-32 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-16">
           <p className="text-violet-400 text-sm font-semibold uppercase tracking-wider mb-3 reveal">
@@ -305,12 +304,8 @@ function HowItWorks() {
                   {i === 1 && <Sparkles className="w-5 h-5 text-violet-400" />}
                   {i === 2 && <Rocket className="w-5 h-5 text-violet-400" />}
                 </div>
-                <h3 className="text-lg font-semibold text-zinc-100 mb-3">
-                  {step.title}
-                </h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">
-                  {step.description}
-                </p>
+                <h3 className="text-lg font-semibold text-zinc-100 mb-3">{step.title}</h3>
+                <p className="text-sm text-zinc-400 leading-relaxed">{step.description}</p>
               </div>
             </div>
           ))}
@@ -352,9 +347,7 @@ function LiveExamples() {
                   <div className="w-10 h-10 rounded-xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center">
                     <Rocket className="w-5 h-5 text-violet-400" />
                   </div>
-                  <span className="text-zinc-600 text-sm font-medium">
-                    {example.name}
-                  </span>
+                  <span className="text-zinc-600 text-sm font-medium">{example.name}</span>
                 </div>
                 {/* Live badge */}
                 <div className="absolute top-3 right-3 flex items-center gap-1.5 px-2 py-1 rounded-full bg-emerald-400/10 border border-emerald-400/20">
@@ -370,9 +363,7 @@ function LiveExamples() {
                     {example.tagline}
                   </span>
                 </div>
-                <h3 className="text-lg font-semibold text-zinc-100 mb-2">
-                  {example.name}
-                </h3>
+                <h3 className="text-lg font-semibold text-zinc-100 mb-2">{example.name}</h3>
                 <p className="text-sm text-zinc-400 leading-relaxed flex-1">
                   {example.description}
                 </p>
@@ -426,12 +417,8 @@ function WhatGetsGenerated() {
               <div className="w-9 h-9 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center mb-4 text-violet-400">
                 {featureIcons[feature.icon]}
               </div>
-              <h3 className="text-sm font-semibold text-zinc-100 mb-1.5">
-                {feature.title}
-              </h3>
-              <p className="text-xs text-zinc-500 leading-relaxed">
-                {feature.description}
-              </p>
+              <h3 className="text-sm font-semibold text-zinc-100 mb-1.5">{feature.title}</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">{feature.description}</p>
             </div>
           ))}
         </div>
@@ -445,11 +432,7 @@ function Pricing() {
   const sectionRef = useReveal();
 
   return (
-    <section
-      id="pricing"
-      ref={sectionRef}
-      className="relative py-24 sm:py-32 px-4 overflow-hidden"
-    >
+    <section id="pricing" ref={sectionRef} className="relative py-24 sm:py-32 px-4 overflow-hidden">
       {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-zinc-950 via-zinc-900/40 to-zinc-950 pointer-events-none" />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-violet-500/5 rounded-full blur-[100px] pointer-events-none" />
@@ -470,8 +453,8 @@ function Pricing() {
               key={tier.name}
               className={`reveal reveal-delay-${i + 1} flex flex-col rounded-2xl border p-6 relative ${
                 tier.featured
-                  ? "border-violet-500/50 bg-zinc-900/90 glow-violet"
-                  : "border-zinc-800 bg-zinc-900/50"
+                  ? 'border-violet-500/50 bg-zinc-900/90 glow-violet'
+                  : 'border-zinc-800 bg-zinc-900/50'
               }`}
             >
               {tier.featured && (
@@ -481,27 +464,20 @@ function Pricing() {
               )}
 
               <div className="mb-6">
-                <h3 className="text-zinc-100 font-semibold text-lg mb-1">
-                  {tier.name}
-                </h3>
+                <h3 className="text-zinc-100 font-semibold text-lg mb-1">{tier.name}</h3>
                 <p className="text-zinc-500 text-sm">{tier.description}</p>
               </div>
 
               <div className="mb-6">
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-zinc-100">
-                    ${tier.price}
-                  </span>
+                  <span className="text-4xl font-bold text-zinc-100">${tier.price}</span>
                   <span className="text-zinc-500 text-sm">/{tier.period}</span>
                 </div>
               </div>
 
               <ul className="flex flex-col gap-3 mb-8 flex-1">
                 {tier.features.map((feature) => (
-                  <li
-                    key={feature}
-                    className="flex items-start gap-2.5 text-sm text-zinc-400"
-                  >
+                  <li key={feature} className="flex items-start gap-2.5 text-sm text-zinc-400">
                     <Check className="w-4 h-4 text-violet-400 mt-0.5 shrink-0" />
                     {feature}
                   </li>
@@ -510,16 +486,16 @@ function Pricing() {
 
               <a
                 href={
-                  tier.price === "0"
-                    ? "/auth/signin?callbackUrl=/dashboard"
-                    : tier.price === "99"
-                      ? "mailto:hello@saasgenerator.dev?subject=Studio%20Plan"
-                      : "/dashboard/settings"
+                  tier.price === '0'
+                    ? '/auth/signin?callbackUrl=/dashboard'
+                    : tier.price === '99'
+                      ? 'mailto:hello@saasgenerator.dev?subject=Studio%20Plan'
+                      : '/dashboard/settings'
                 }
                 className={`w-full inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
                   tier.featured
-                    ? "bg-violet-500 text-white hover:bg-violet-400"
-                    : "border border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100"
+                    ? 'bg-violet-500 text-white hover:bg-violet-400'
+                    : 'border border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-zinc-100'
                 }`}
               >
                 {tier.cta}
@@ -548,12 +524,7 @@ function FAQ() {
 
         <div className="flex flex-col gap-4">
           {copy.faq.questions.map((item, i) => (
-            <FAQItem
-              key={i}
-              question={item.q}
-              answer={item.a}
-              delay={(i % 3) + 1}
-            />
+            <FAQItem key={i} question={item.q} answer={item.a} delay={(i % 3) + 1} />
           ))}
         </div>
       </div>
@@ -561,17 +532,11 @@ function FAQ() {
   );
 }
 
-function FAQItem({
-  question,
-  answer,
-  delay,
-}: {
-  question: string;
-  answer: string;
-  delay: number;
-}) {
+function FAQItem({ question, answer, delay }: { question: string; answer: string; delay: number }) {
   return (
-    <details className={`reveal reveal-delay-${delay} group rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden`}>
+    <details
+      className={`reveal reveal-delay-${delay} group rounded-xl border border-zinc-800 bg-zinc-900/50 overflow-hidden`}
+    >
       <summary className="flex items-center justify-between gap-4 p-5 cursor-pointer list-none text-zinc-100 font-medium text-sm hover:text-violet-300 transition-colors select-none">
         {question}
         <ChevronDown className="w-4 h-4 text-zinc-500 shrink-0 transition-transform group-open:rotate-180" />
@@ -625,9 +590,7 @@ function Footer() {
           </div>
           <span className="text-zinc-500 text-sm font-medium">SaaS Generator</span>
         </div>
-        <p className="text-zinc-600 text-xs">
-          Built for builders who ship.
-        </p>
+        <p className="text-zinc-600 text-xs">Built for builders who ship.</p>
       </div>
     </footer>
   );

@@ -1,47 +1,47 @@
-"use client";
+'use client';
 
-import { signOut } from "next-auth/react";
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { CheckCircle2, Loader2, ExternalLink, LogOut, User, AlertTriangle } from "lucide-react";
-import { ApiKeysManager } from "@/components/dashboard/api-keys-manager";
-import { useToast } from "@/components/providers/toast-provider";
-import { trackEvent } from "@/lib/analytics";
+import { CheckCircle2, Loader2, ExternalLink, LogOut, User, AlertTriangle } from 'lucide-react';
+import { signOut } from 'next-auth/react';
+import { useState } from 'react';
+import { ApiKeysManager } from '@/components/dashboard/api-keys-manager';
+import { useToast } from '@/components/providers/toast-provider';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { trackEvent } from '@/lib/analytics';
 
 const PLANS = [
   {
-    name: "Free",
-    price: "$0/mo",
-    description: "1 project",
+    name: 'Free',
+    price: '$0/mo',
+    description: '1 project',
     priceId: null,
-    key: "free",
+    key: 'free',
     limit: 1,
   },
   {
-    name: "Hobby",
-    price: "$0/mo",
-    description: "1 project",
+    name: 'Hobby',
+    price: '$0/mo',
+    description: '1 project',
     priceId: null,
-    key: "hobby",
+    key: 'hobby',
     limit: 1,
   },
   {
-    name: "Maker",
-    price: "$29/mo",
-    description: "5 projects",
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_MAKER ?? "",
-    key: "maker",
+    name: 'Maker',
+    price: '$29/mo',
+    description: '5 projects',
+    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_MAKER ?? '',
+    key: 'maker',
     limit: 5,
   },
   {
-    name: "Studio",
-    price: "$99/mo",
-    description: "Unlimited projects",
-    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_STUDIO ?? "",
-    key: "studio",
+    name: 'Studio',
+    price: '$99/mo',
+    description: 'Unlimited projects',
+    priceId: process.env.NEXT_PUBLIC_STRIPE_PRICE_STUDIO ?? '',
+    key: 'studio',
     limit: -1,
   },
 ];
@@ -53,7 +53,7 @@ interface SettingsClientProps {
     image?: string;
   };
   stripeCustomerId: string | null;
-  plan: "free" | "hobby" | "maker" | "studio";
+  plan: 'free' | 'hobby' | 'maker' | 'studio';
   projects: Array<{ id: string; name: string; status: string }>;
 }
 
@@ -79,40 +79,40 @@ export default function SettingsClient({
     // Track upgrade clicked with plan info
     const plan = PLANS.find((p) => p.priceId === priceId);
     if (plan) {
-      trackEvent("upgrade_clicked", { plan: plan.key, price: plan.price });
+      trackEvent('upgrade_clicked', { plan: plan.key, price: plan.price });
     }
     setLoading(priceId);
     try {
-      const res = await fetch("/api/billing/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/billing/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ priceId }),
       });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        toast(data.error ?? "Failed to start checkout", "error");
+        toast(data.error ?? 'Failed to start checkout', 'error');
       }
     } catch {
-      toast("Network error — please try again", "error");
+      toast('Network error — please try again', 'error');
     } finally {
       setLoading(null);
     }
   }
 
   async function handlePortal() {
-    setLoading("portal");
+    setLoading('portal');
     try {
-      const res = await fetch("/api/billing/portal", { method: "POST" });
+      const res = await fetch('/api/billing/portal', { method: 'POST' });
       const data = await res.json();
       if (data.url) {
         window.location.href = data.url;
       } else {
-        toast(data.error ?? "Failed to open billing portal", "error");
+        toast(data.error ?? 'Failed to open billing portal', 'error');
       }
     } catch {
-      toast("Network error — please try again", "error");
+      toast('Network error — please try again', 'error');
     } finally {
       setLoading(null);
     }
@@ -122,26 +122,29 @@ export default function SettingsClient({
     if (!value.trim()) return;
     setLoading(key);
     try {
-      const res = await fetch("/api/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key, value }),
       });
       if (res.ok) {
         setSaved((prev) => [...prev, key]);
         setTimeout(() => setSaved((prev) => prev.filter((k) => k !== key)), 3000);
-        toast(`${key} saved successfully`, "success");
+        toast(`${key} saved successfully`, 'success');
       } else {
-        toast(`Failed to save ${key}`, "error");
+        toast(`Failed to save ${key}`, 'error');
       }
-    } catch { /* ignore */ }
-    finally { setLoading(null); }
+    } catch {
+      /* ignore */
+    } finally {
+      setLoading(null);
+    }
   }
 
   function usageColor() {
-    if (usagePercent >= 100) return "bg-red-500";
-    if (usagePercent >= 80) return "bg-amber-500";
-    return "bg-violet-500";
+    if (usagePercent >= 100) return 'bg-red-500';
+    if (usagePercent >= 80) return 'bg-amber-500';
+    return 'bg-violet-500';
   }
 
   return (
@@ -165,7 +168,7 @@ export default function SettingsClient({
                 </div>
               )}
               <div>
-                <p className="text-sm font-medium text-zinc-100">{user.name || "Unnamed"}</p>
+                <p className="text-sm font-medium text-zinc-100">{user.name || 'Unnamed'}</p>
                 <p className="text-xs text-zinc-500">{user.email}</p>
               </div>
             </div>
@@ -173,7 +176,7 @@ export default function SettingsClient({
               variant="outline"
               size="sm"
               className="border-zinc-700 text-zinc-400 hover:text-zinc-100"
-              onClick={() => signOut({ callbackUrl: "/" })}
+              onClick={() => signOut({ callbackUrl: '/' })}
             >
               <LogOut className="h-3.5 w-3.5 mr-1.5" />
               Sign out
@@ -189,9 +192,9 @@ export default function SettingsClient({
             <div>
               <CardTitle className="text-zinc-100 text-base">Subscription</CardTitle>
               <CardDescription className="text-zinc-500">
-                Current plan:{" "}
+                Current plan:{' '}
                 <span className="text-violet-400 font-medium capitalize">
-                  {currentPlan === "free" ? "Free" : currentPlan}
+                  {currentPlan === 'free' ? 'Free' : currentPlan}
                 </span>
                 {stripeCustomerId && (
                   <span className="ml-2 text-emerald-400/70 text-xs">✓ Billing active</span>
@@ -204,9 +207,9 @@ export default function SettingsClient({
                 size="sm"
                 className="border-zinc-700 text-zinc-400 hover:text-zinc-100"
                 onClick={handlePortal}
-                disabled={loading === "portal"}
+                disabled={loading === 'portal'}
               >
-                {loading === "portal" ? (
+                {loading === 'portal' ? (
                   <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
                 ) : (
                   <ExternalLink className="h-3 w-3 mr-1.5" />
@@ -224,18 +227,16 @@ export default function SettingsClient({
             <div className="mb-4">
               <div className="flex items-center justify-between mb-1.5">
                 <div className="flex items-center gap-1.5">
-                  {isAtLimit && (
-                    <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
-                  )}
+                  {isAtLimit && <AlertTriangle className="w-3.5 h-3.5 text-red-400" />}
                   <span className="text-xs text-zinc-400">
-                    Projects used:{" "}
+                    Projects used:{' '}
                     <span
                       className={
                         usagePercent >= 100
-                          ? "text-red-400 font-medium"
+                          ? 'text-red-400 font-medium'
                           : usagePercent >= 80
-                          ? "text-amber-400 font-medium"
-                          : "text-zinc-200 font-medium"
+                            ? 'text-amber-400 font-medium'
+                            : 'text-zinc-200 font-medium'
                       }
                     >
                       {projectCount}/{limit}
@@ -245,10 +246,10 @@ export default function SettingsClient({
                 <span
                   className={`text-xs font-medium ${
                     usagePercent >= 100
-                      ? "text-red-400"
+                      ? 'text-red-400'
                       : usagePercent >= 80
-                      ? "text-amber-400"
-                      : "text-zinc-400"
+                        ? 'text-amber-400'
+                        : 'text-zinc-400'
                   }`}
                 >
                   {Math.round(usagePercent)}%
@@ -296,8 +297,8 @@ export default function SettingsClient({
                   key={plan.key}
                   className={`rounded-lg border p-4 flex flex-col gap-2 ${
                     plan.key === currentPlan
-                      ? "border-violet-500 bg-violet-500/5"
-                      : "border-zinc-800 bg-zinc-950"
+                      ? 'border-violet-500 bg-violet-500/5'
+                      : 'border-zinc-800 bg-zinc-950'
                   }`}
                 >
                   <div>
@@ -324,16 +325,11 @@ export default function SettingsClient({
                       {loading === plan.priceId ? (
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
-                        "Upgrade"
+                        'Upgrade'
                       )}
                     </Button>
                   ) : (
-                    <Button
-                      size="sm"
-                      disabled
-                      variant="ghost"
-                      className="text-zinc-600 w-full"
-                    >
+                    <Button size="sm" disabled variant="ghost" className="text-zinc-600 w-full">
                       Free
                     </Button>
                   )}
@@ -365,7 +361,7 @@ export default function SettingsClient({
             API Keys
           </CardTitle>
           <CardDescription className="text-zinc-500">
-            Configure your integrations. Keys are stored in{" "}
+            Configure your integrations. Keys are stored in{' '}
             <code className="text-zinc-300">.env.local</code>.
           </CardDescription>
         </CardHeader>
@@ -382,11 +378,15 @@ export default function SettingsClient({
         <CardContent>
           <div className="space-y-2 text-xs">
             {[
-              { label: "Hosting", value: "Vercel (recommended)", color: "text-emerald-400" },
-              { label: "Database", value: "Supabase PostgreSQL", color: "text-zinc-300" },
-              { label: "AI Research", value: "Exa AI (exa.ai) — free tier", color: "text-zinc-300" },
-              { label: "Payments", value: "Stripe", color: "text-zinc-300" },
-              { label: "Email", value: "Resend (resend.com) — free tier", color: "text-zinc-300" },
+              { label: 'Hosting', value: 'Vercel (recommended)', color: 'text-emerald-400' },
+              { label: 'Database', value: 'Supabase PostgreSQL', color: 'text-zinc-300' },
+              {
+                label: 'AI Research',
+                value: 'Exa AI (exa.ai) — free tier',
+                color: 'text-zinc-300',
+              },
+              { label: 'Payments', value: 'Stripe', color: 'text-zinc-300' },
+              { label: 'Email', value: 'Resend (resend.com) — free tier', color: 'text-zinc-300' },
             ].map(({ label, value, color }) => (
               <div key={label} className="flex items-center gap-3">
                 <span className="text-zinc-500 w-24 shrink-0">{label}</span>

@@ -1,14 +1,14 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { getToken } from 'next-auth/jwt';
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
-  const isDashboard = request.nextUrl.pathname.startsWith("/dashboard");
+  const isDashboard = request.nextUrl.pathname.startsWith('/dashboard');
 
   if (isDashboard && !token) {
-    const redirectUrl = new URL("/auth/signin", request.url);
-    redirectUrl.searchParams.set("callbackUrl", request.nextUrl.pathname);
+    const redirectUrl = new URL('/auth/signin', request.url);
+    redirectUrl.searchParams.set('callbackUrl', request.nextUrl.pathname);
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -16,5 +16,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*"],
+  matcher: ['/dashboard/:path*'],
 };

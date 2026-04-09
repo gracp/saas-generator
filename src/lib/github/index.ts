@@ -4,18 +4,17 @@
  * All operations use the `gh` CLI under the hood so they respect
  * whatever GitHub auth is configured on the host.
  */
+import { execSync, spawnSync } from 'child_process';
 
-import { execSync, spawnSync } from "child_process";
-
-const GH = "gh";
+const GH = 'gh';
 
 /** Thin wrapper around `gh` that throws on non-zero exit. */
 export function gh(args: string, opts?: { cwd?: string }): string {
   const cmd = `${GH} ${args}`;
   return execSync(cmd, {
-    encoding: "utf-8",
+    encoding: 'utf-8',
     cwd: opts?.cwd,
-    stdio: ["pipe", "pipe", "pipe"],
+    stdio: ['pipe', 'pipe', 'pipe'],
   }).trim();
 }
 
@@ -49,7 +48,7 @@ export interface PullRequestInfo {
   headRef: string;
   baseRef: string;
   mergeable: boolean;
-  reviewDecision?: "APPROVED" | "CHANGES_REQUESTED" | "REVIEW_REQUIRED";
+  reviewDecision?: 'APPROVED' | 'CHANGES_REQUESTED' | 'REVIEW_REQUIRED';
   statusCheckRollup: {
     status: string; // "SUCCESS" | "FAILURE" | "PENDING"
   };
@@ -63,8 +62,8 @@ export interface BranchInfo {
 // ─── Repo Operations ────────────────────────────────────
 
 export function createRepo(opts: RepoCreateOptions): RepoInfo {
-  const visibility = opts.public ? "--public" : "--private";
-  const org = opts.org ? `--repo ${opts.org}/${opts.name}` : "";
+  const visibility = opts.public ? '--public' : '--private';
+  const org = opts.org ? `--repo ${opts.org}/${opts.name}` : '';
   gh(`repo create ${opts.name} ${visibility} --description "${opts.description}" ${org}`);
 
   const url = gh(`repo view ${opts.name} --json url,sshUrl,name,owner -q '.'`);
@@ -87,7 +86,7 @@ export function cloneRepo(repoUrl: string, targetDir: string): void {
   gh(`repo clone ${repoUrl} ${targetDir}`);
 }
 
-export function initAndPush(dir: string, remoteUrl: string, branch = "main"): void {
+export function initAndPush(dir: string, remoteUrl: string, branch = 'main'): void {
   const commands = [
     `cd ${dir} && git init`,
     `cd ${dir} && git remote add origin ${remoteUrl}`,
@@ -97,36 +96,30 @@ export function initAndPush(dir: string, remoteUrl: string, branch = "main"): vo
     `cd ${dir} && git push -u origin ${branch}`,
   ];
   for (const cmd of commands) {
-    execSync(cmd, { stdio: "pipe" });
+    execSync(cmd, { stdio: 'pipe' });
   }
 }
 
 // ─── Branch Operations ──────────────────────────────────
 
-export function createBranch(repoDir: string, branchName: string, base = "main"): BranchInfo {
+export function createBranch(repoDir: string, branchName: string, base = 'main'): BranchInfo {
   gh(`checkout -b ${branchName} ${base}`, { cwd: repoDir });
   // We need to use git, not gh
-  execSync(`git checkout -b ${branchName} ${base}`, { cwd: repoDir, stdio: "pipe" });
-  return { name: branchName, headOid: "" };
+  execSync(`git checkout -b ${branchName} ${base}`, { cwd: repoDir, stdio: 'pipe' });
+  return { name: branchName, headOid: '' };
 }
 
 export function pushBranch(repoDir: string, branchName: string): void {
-  execSync(`git push -u origin ${branchName}`, { cwd: repoDir, stdio: "pipe" });
+  execSync(`git push -u origin ${branchName}`, { cwd: repoDir, stdio: 'pipe' });
 }
 
 export function createWorktree(repoDir: string, branchName: string): string {
-  const worktreePath = `${repoDir}-${branchName.replace(/\//g, "-")}`;
+  const worktreePath = `${repoDir}-${branchName.replace(/\//g, '-')}`;
   try {
-    execSync(
-      `git worktree add ${worktreePath} -b ${branchName}`,
-      { cwd: repoDir, stdio: "pipe" }
-    );
+    execSync(`git worktree add ${worktreePath} -b ${branchName}`, { cwd: repoDir, stdio: 'pipe' });
   } catch {
     // Branch may already exist
-    execSync(
-      `git worktree add ${worktreePath} ${branchName}`,
-      { cwd: repoDir, stdio: "pipe" }
-    );
+    execSync(`git worktree add ${worktreePath} ${branchName}`, { cwd: repoDir, stdio: 'pipe' });
   }
   return worktreePath;
 }
@@ -134,7 +127,7 @@ export function createWorktree(repoDir: string, branchName: string): string {
 export function removeWorktree(repoDir: string, worktreePath: string): void {
   execSync(`git worktree remove ${worktreePath} --force`, {
     cwd: repoDir,
-    stdio: "pipe",
+    stdio: 'pipe',
   });
 }
 
@@ -144,10 +137,8 @@ export function createIssue(
   repoSlug: string,
   opts: IssueCreateOptions
 ): { number: number; url: string } {
-  const labels = opts.labels?.length ? `--label "${opts.labels.join(",")}"` : "";
-  const assignees = opts.assignees?.length
-    ? `--assignee "${opts.assignees.join(",")}"`
-    : "";
+  const labels = opts.labels?.length ? `--label "${opts.labels.join(',')}"` : '';
+  const assignees = opts.assignees?.length ? `--assignee "${opts.assignees.join(',')}"` : '';
   const result = gh(
     `issue create --repo ${repoSlug} --title "${opts.title}" --body "${opts.body.replace(
       /"/g,
@@ -157,7 +148,7 @@ export function createIssue(
   // Result is a URL like https://github.com/owner/repo/issues/123
   const match = result.match(/\/issues\/(\d+)$/);
   return {
-    number: parseInt(match?.[1] ?? "0", 10),
+    number: parseInt(match?.[1] ?? '0', 10),
     url: result,
   };
 }
@@ -173,18 +164,18 @@ export function createPullRequest(
     base?: string;
   }
 ): { number: number; url: string } {
-  const base = opts.base ?? "main";
+  const base = opts.base ?? 'main';
   const result = execSync(
     `cd ${repoDir} && gh pr create --title "${opts.title}" --body "${opts.body.replace(
       /"/g,
       '\\"'
     )}" --head ${opts.head} --base ${base}`,
-    { encoding: "utf-8", stdio: ["pipe", "pipe", "pipe"] }
+    { encoding: 'utf-8', stdio: ['pipe', 'pipe', 'pipe'] }
   ).trim();
 
   const match = result.match(/\/pull\/(\d+)$/);
   return {
-    number: parseInt(match?.[1] ?? "0", 10),
+    number: parseInt(match?.[1] ?? '0', 10),
     url: result,
   };
 }
@@ -211,9 +202,9 @@ export function getPullRequest(repoSlug: string, prNumber: number): PullRequestI
     headRef: parsed.headRefName,
     baseRef: parsed.baseRefName,
     mergeable: parsed.mergeable,
-    reviewDecision: parsed.reviewDecision as PullRequestInfo["reviewDecision"],
+    reviewDecision: parsed.reviewDecision as PullRequestInfo['reviewDecision'],
     statusCheckRollup: {
-      status: parsed.statusCheckRollup[0]?.status ?? "PENDING",
+      status: parsed.statusCheckRollup[0]?.status ?? 'PENDING',
     },
   };
 }
@@ -221,39 +212,34 @@ export function getPullRequest(repoSlug: string, prNumber: number): PullRequestI
 export function mergePullRequest(
   repoSlug: string,
   prNumber: number,
-  method: "squash" | "merge" | "rebase" = "squash"
+  method: 'squash' | 'merge' | 'rebase' = 'squash'
 ): void {
   gh(`pr merge ${prNumber} --repo ${repoSlug} --${method} --delete-branch`);
 }
 
-export function addCommentToPR(
-  repoSlug: string,
-  prNumber: number,
-  body: string
-): void {
+export function addCommentToPR(repoSlug: string, prNumber: number, body: string): void {
   gh(`pr comment ${prNumber} --repo ${repoSlug} --body "${body.replace(/"/g, '\\"')}"`);
 }
 
 // ─── Vercel Integration ─────────────────────────────────
 
-export function connectToVercel(repoSlug: string, _opts?: {
-  vercelToken?: string;
-  framework?: string;
-}): string {
+export function connectToVercel(
+  repoSlug: string,
+  _opts?: {
+    vercelToken?: string;
+    framework?: string;
+  }
+): string {
   // This would use the Vercel API to import the repo
   // For now, return a placeholder URL
-  const repoName = repoSlug.split("/")[1];
+  const repoName = repoSlug.split('/')[1];
   return `https://${repoName}.vercel.app`;
 }
 
-export function setRepoSecret(
-  repoSlug: string,
-  name: string,
-  value: string
-): void {
+export function setRepoSecret(repoSlug: string, name: string, value: string): void {
   // Pipe secret value to gh secret set to avoid shell escaping issues
-  spawnSync("gh", ["secret", "set", name, "--repo", repoSlug, "--body", value], {
-    encoding: "utf-8",
-    stdio: "pipe",
+  spawnSync('gh', ['secret', 'set', name, '--repo', repoSlug, '--body', value], {
+    encoding: 'utf-8',
+    stdio: 'pipe',
   });
 }

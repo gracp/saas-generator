@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { CheckCircle2, ExternalLink, Share2, Copy, Check } from "lucide-react";
-import { useState, useEffect } from "react";
-import confetti from "canvas-confetti";
+import confetti from 'canvas-confetti';
+import { CheckCircle2, ExternalLink, Share2, Copy, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 interface DeployCelebrationProps {
   projectName: string;
@@ -28,7 +28,7 @@ export function DeployCelebration({
     const duration = 2000;
     const end = Date.now() + duration;
 
-    const colors = ["#10b981", "#34d399", "#6ee7b7", "#a7f3d0", "#d1fae5"];
+    const colors = ['#10b981', '#34d399', '#6ee7b7', '#a7f3d0', '#d1fae5'];
 
     const frame = () => {
       confetti({
@@ -73,14 +73,16 @@ export function DeployCelebration({
   };
 
   const handleTwitterShare = () => {
-    const text = encodeURIComponent(`🎉 My SaaS "${projectName}" just went live! Built with @saasgenerator`);
+    const text = encodeURIComponent(
+      `🎉 My SaaS "${projectName}" just went live! Built with @saasgenerator`
+    );
     const url = encodeURIComponent(vercelUrl);
-    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, "_blank");
+    window.open(`https://twitter.com/intent/tweet?text=${text}&url=${url}`, '_blank');
   };
 
   const handleLinkedInShare = () => {
     const url = encodeURIComponent(vercelUrl);
-    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, "_blank");
+    window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, '_blank');
   };
 
   return (
@@ -89,7 +91,7 @@ export function DeployCelebration({
         fixed inset-0 z-50 flex items-center justify-center
         bg-black/60 backdrop-blur-sm
         transition-opacity duration-300 ease-out
-        ${visible ? "opacity-100" : "opacity-0"}
+        ${visible ? 'opacity-100' : 'opacity-0'}
       `}
       onClick={(e) => {
         if (e.target === e.currentTarget) handleDismiss();
@@ -101,7 +103,7 @@ export function DeployCelebration({
           bg-zinc-900 border border-zinc-800 rounded-2xl shadow-2xl
           overflow-hidden
           transition-all duration-300 ease-out
-          ${visible ? "scale-100 opacity-100" : "scale-95 opacity-0"}
+          ${visible ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}
         `}
       >
         {/* Confetti accent strip */}
@@ -118,12 +120,8 @@ export function DeployCelebration({
 
           {/* Heading */}
           <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-white">
-              🎉 {projectName} is live!
-            </h2>
-            <p className="text-zinc-400 text-sm">
-              Your SaaS has been successfully deployed
-            </p>
+            <h2 className="text-2xl font-bold text-white">🎉 {projectName} is live!</h2>
+            <p className="text-zinc-400 text-sm">Your SaaS has been successfully deployed</p>
           </div>
 
           {/* Links */}
@@ -161,8 +159,12 @@ export function DeployCelebration({
                 onClick={handleCopy}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm rounded-md transition-colors"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                {copied ? "Copied!" : "Copy URL"}
+                {copied ? (
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                ) : (
+                  <Copy className="w-3.5 h-3.5" />
+                )}
+                {copied ? 'Copied!' : 'Copy URL'}
               </button>
 
               <button
@@ -187,9 +189,7 @@ export function DeployCelebration({
 
           {/* Badge */}
           <div className="pt-2">
-            <p className="text-xs text-zinc-600">
-              Built with SaaS Generator
-            </p>
+            <p className="text-xs text-zinc-600">Built with SaaS Generator</p>
           </div>
 
           {/* Dismiss */}
@@ -198,7 +198,12 @@ export function DeployCelebration({
             className="absolute top-4 right-4 p-1.5 text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800 rounded-md transition-colors"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>

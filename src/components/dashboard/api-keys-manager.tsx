@@ -1,9 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Key, Copy, Check, Trash2, Plus, AlertTriangle, Loader2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -11,16 +10,9 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Key,
-  Copy,
-  Check,
-  Trash2,
-  Plus,
-  AlertTriangle,
-  Loader2,
-} from "lucide-react";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface ApiKey {
   id: string;
@@ -43,7 +35,7 @@ export function ApiKeysManager() {
 
   // Create key dialog
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [newKeyName, setNewKeyName] = useState("");
+  const [newKeyName, setNewKeyName] = useState('');
 
   // Revoke confirmation dialog
   const [revokeTarget, setRevokeTarget] = useState<ApiKey | null>(null);
@@ -54,16 +46,16 @@ export function ApiKeysManager() {
 
   // Integration keys
   const [integrationKeys, setIntegrationKeys] = useState({
-    exa: "",
-    vercel: "",
-    resend: "",
+    exa: '',
+    vercel: '',
+    resend: '',
   });
   const [savingIntegration, setSavingIntegration] = useState<string | null>(null);
   const [savedIntegration, setSavedIntegration] = useState<string[]>([]);
 
   const fetchKeys = useCallback(async () => {
     try {
-      const res = await fetch("/api/settings/api-keys");
+      const res = await fetch('/api/settings/api-keys');
       if (res.ok) {
         const data = await res.json();
         setKeys(data.keys || []);
@@ -83,16 +75,16 @@ export function ApiKeysManager() {
     if (!newKeyName.trim()) return;
     setCreating(true);
     try {
-      const res = await fetch("/api/settings/api-keys", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/settings/api-keys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newKeyName.trim() }),
       });
       if (res.ok) {
         const data = await res.json();
         setNewKeyResult(data);
         setShowCreateDialog(false);
-        setNewKeyName("");
+        setNewKeyName('');
         fetchKeys();
       }
     } catch {
@@ -106,9 +98,9 @@ export function ApiKeysManager() {
     if (!revokeTarget) return;
     setRevoking(revokeTarget.id);
     try {
-      const res = await fetch("/api/settings/api-keys", {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/settings/api-keys', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ keyId: revokeTarget.id }),
       });
       if (res.ok) {
@@ -137,9 +129,9 @@ export function ApiKeysManager() {
     if (!value.trim()) return;
     setSavingIntegration(key);
     try {
-      const res = await fetch("/api/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+      const res = await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ key, value }),
       });
       if (res.ok) {
@@ -155,25 +147,25 @@ export function ApiKeysManager() {
 
   const integrations = [
     {
-      id: "exa",
-      key: "EXA_API_KEY",
-      label: "Exa API Key (Research)",
-      placeholder: "sk-exa-xxxx",
-      help: "exa.ai",
+      id: 'exa',
+      key: 'EXA_API_KEY',
+      label: 'Exa API Key (Research)',
+      placeholder: 'sk-exa-xxxx',
+      help: 'exa.ai',
     },
     {
-      id: "vercel",
-      key: "VERCEL_API_TOKEN",
-      label: "Vercel API Token",
-      placeholder: "xxxx",
-      help: "vercel.com/account/tokens",
+      id: 'vercel',
+      key: 'VERCEL_API_TOKEN',
+      label: 'Vercel API Token',
+      placeholder: 'xxxx',
+      help: 'vercel.com/account/tokens',
     },
     {
-      id: "resend",
-      key: "RESEND_API_KEY",
-      label: "Resend API Key (Email)",
-      placeholder: "re_xxxx",
-      help: "resend.com",
+      id: 'resend',
+      key: 'RESEND_API_KEY',
+      label: 'Resend API Key (Email)',
+      placeholder: 're_xxxx',
+      help: 'resend.com',
     },
   ];
 
@@ -184,9 +176,7 @@ export function ApiKeysManager() {
         {integrations.map((integration) => (
           <div key={integration.key} className="space-y-1.5">
             <Label className="text-zinc-400 text-xs">{integration.label}</Label>
-            <p className="text-[10px] text-zinc-600">
-              Get your key at {integration.help}
-            </p>
+            <p className="text-[10px] text-zinc-600">Get your key at {integration.help}</p>
             <div className="flex gap-2">
               <Input
                 type="password"
@@ -216,7 +206,7 @@ export function ApiKeysManager() {
                 ) : savingIntegration === integration.key ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  "Save"
+                  'Save'
                 )}
               </Button>
             </div>
@@ -270,12 +260,8 @@ export function ApiKeysManager() {
                     <Key className="h-4 w-4 text-violet-400" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-zinc-100 truncate">
-                      {k.name}
-                    </p>
-                    <p className="text-xs font-mono text-zinc-500 truncate">
-                      {k.maskedKey}
-                    </p>
+                    <p className="text-sm font-medium text-zinc-100 truncate">{k.name}</p>
+                    <p className="text-xs font-mono text-zinc-500 truncate">{k.maskedKey}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
@@ -321,7 +307,7 @@ export function ApiKeysManager() {
               value={newKeyName}
               onChange={(e) => setNewKeyName(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") handleCreate();
+                if (e.key === 'Enter') handleCreate();
               }}
             />
           </div>
@@ -338,9 +324,7 @@ export function ApiKeysManager() {
               onClick={handleCreate}
               disabled={!newKeyName.trim() || creating}
             >
-              {creating ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
-              ) : null}
+              {creating ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : null}
               Create Key
             </Button>
           </DialogFooter>
@@ -408,18 +392,14 @@ export function ApiKeysManager() {
           <DialogHeader>
             <DialogTitle className="text-zinc-100">Revoke API Key</DialogTitle>
             <DialogDescription className="text-zinc-500">
-              This action cannot be undone. Any services using this key will
-              lose access immediately.
+              This action cannot be undone. Any services using this key will lose access
+              immediately.
             </DialogDescription>
           </DialogHeader>
           {revokeTarget && (
             <div className="bg-zinc-950 border border-zinc-800 rounded-lg p-3 space-y-1">
-              <p className="text-sm font-medium text-zinc-100">
-                {revokeTarget.name}
-              </p>
-              <p className="text-xs font-mono text-zinc-500">
-                {revokeTarget.maskedKey}
-              </p>
+              <p className="text-sm font-medium text-zinc-100">{revokeTarget.name}</p>
+              <p className="text-xs font-mono text-zinc-500">{revokeTarget.maskedKey}</p>
             </div>
           )}
           <DialogFooter>
