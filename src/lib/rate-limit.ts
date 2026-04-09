@@ -68,16 +68,29 @@ export function rateLimit({
 }
 
 /**
- * Get client IP from request headers
+ * Get client IP from request headers.
+ *
+ * SECURITY: On Vercel serverless, use x-vercel-forwarded-for which is set
+ * by Vercel's edge and cannot be spoofed by the client. On other platforms,
+ * fall back to x-forwarded-for only when behind a trusted proxy.
  */
 export function getClientIp(request: Request): string {
+  // Vercel-specific header — set by the edge, not spoofable by clients
+  const vercelForwarded = request.headers.get("x-vercel-forwarded-for");
+  if (vercelForwarded) return vercelForwarded.split(",")[0].trim();
+
+  // Standard proxy header — only trust in production behind known proxies
   const forwarded = request.headers.get("x-forwarded-for");
-  if (forwarded) return forwarded.split(",")[0].trim();
+  if (forwarded) {
+    // In production (Vercel/CDN), the proxy sets this — trust it
+    // In development, don't trust client-supplied headers
+    if (process.env.NODE_ENV === "production") {
+      return forwarded.split(",")[0].trim();
+    }
+  }
 
-  const realIp = request.headers.get("x-real-ip");
-  if (realIp) return realIp;
-
-  return "unknown";
+  // Last resort fallback
+  return "127.0.0.1";
 }
 
 /**

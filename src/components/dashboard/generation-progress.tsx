@@ -4,10 +4,34 @@ import { Loader2, CheckCircle2, Search, Code, Rocket, Globe } from "lucide-react
 import type { ProjectStatus } from "@/lib/projects";
 
 const STEPS = [
-  { key: "researching", label: "Researching market & competitors", icon: Search, estimate: 15 },
-  { key: "generating", label: "Generating SaaS ideas", icon: Rocket, estimate: 10 },
-  { key: "building", label: "Building your application", icon: Code, estimate: 60 },
-  { key: "deploying", label: "Deploying to Vercel", icon: Globe, estimate: 30 },
+  {
+    key: "researching",
+    label: "Researching market & competitors",
+    detail: "Scanning industry trends, competitors, and market gaps using AI...",
+    icon: Search,
+    estimate: 15,
+  },
+  {
+    key: "generating",
+    label: "Generating SaaS ideas",
+    detail: "Crafting unique business ideas validated against real market data...",
+    icon: Rocket,
+    estimate: 10,
+  },
+  {
+    key: "building",
+    label: "Building your application",
+    detail: "Scaffolding, landing page, auth, billing, and core feature — all in parallel...",
+    icon: Code,
+    estimate: 60,
+  },
+  {
+    key: "deploying",
+    label: "Deploying to Vercel",
+    detail: "Building the app, running tests, and going live on your custom Vercel URL...",
+    icon: Globe,
+    estimate: 30,
+  },
 ];
 
 // Map ProjectStatus to step keys
@@ -112,16 +136,23 @@ export function GenerationProgress({ status, projectName }: GenerationProgressPr
                 </div>
 
                 {/* Label */}
-                <span
-                  className={`
-                    text-sm flex-1
-                    ${isActive ? "text-zinc-100 font-medium" : ""}
-                    ${isComplete ? "text-emerald-400" : ""}
-                    ${isPending ? "text-zinc-500" : ""}
-                  `}
-                >
-                  {step.label}
-                </span>
+                <div className="flex-1 min-w-0">
+                  <span
+                    className={`
+                      text-sm block
+                      ${isActive ? "text-zinc-100 font-medium" : ""}
+                      ${isComplete ? "text-emerald-400" : ""}
+                      ${isPending ? "text-zinc-500" : ""}
+                    `}
+                  >
+                    {step.label}
+                  </span>
+                  {isActive && step.detail && (
+                    <span className="text-xs text-zinc-500 block mt-0.5 truncate">
+                      {step.detail}
+                    </span>
+                  )}
+                </div>
 
                 {/* Status indicator */}
                 {isActive && (

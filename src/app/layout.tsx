@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { SessionProvider } from "@/components/session-provider";
-import { AnalyticsProvider } from "@/components/providers/analytics-provider";
+import { ClientProviders } from "@/components/providers/client-providers";
 
 export const metadata: Metadata = {
   title: "SaaS Generator — From Idea to Launch in Minutes",
@@ -46,9 +45,7 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
       </head>
       <body className="bg-zinc-950 text-zinc-100 antialiased">
-        <SessionProvider>
-        <AnalyticsProvider>{children}</AnalyticsProvider>
-      </SessionProvider>
+        <ClientProviders>{children}</ClientProviders>
       </body>
     </html>
   );

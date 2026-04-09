@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Sparkles, Loader2, CheckCircle2 } from "lucide-react";
 import type { GeneratedIdea } from "@/lib/projects";
+import { useToast } from "@/components/providers/toast-provider";
 
 export function NewProjectSheet({
   open: controlledOpen,
@@ -36,11 +37,20 @@ export function NewProjectSheet({
   const [projectId, setProjectId] = useState<string | null>(null);
   const [selectedIdeaIdx, setSelectedIdeaIdx] = useState<number | null>(null);
   const [selecting, setSelecting] = useState(false);
+  const { toast } = useToast();
+  const [generationStep, setGenerationStep] = useState(0);
+  const [showIdeaCelebration, setShowIdeaCelebration] = useState(false);
 
   async function handleGenerate() {
     if (!name.trim()) return;
     setLoading(true);
     setIdeas(null);
+    setGenerationStep(1);
+
+    // Cycle through steps to show progress
+    const stepInterval = setInterval(() => {
+      setGenerationStep((s) => Math.min(s + 1, 3));
+    }, 4000);
 
     try {
       const res = await fetch("/api/generate", {
@@ -52,17 +62,23 @@ export function NewProjectSheet({
         }),
       });
 
+      clearInterval(stepInterval);
+      setGenerationStep(4);
+
       const data = await res.json();
       if (data.success && data.ideas) {
         setIdeas(data.ideas);
         setProjectId(data.project?.id ?? null);
       } else {
-        alert(data.error ?? "Generation failed");
+        toast(data.error ?? "Generation failed", "error");
         setLoading(false);
+        setGenerationStep(0);
       }
     } catch {
-      alert("Network error — please try again");
+      clearInterval(stepInterval);
+      toast("Network error — please try again", "error");
       setLoading(false);
+      setGenerationStep(0);
     }
   }
 
@@ -79,18 +95,22 @@ export function NewProjectSheet({
       });
       const data = await res.json();
       if (data.success) {
+        setShowIdeaCelebration(true);
         setOpen(false);
         setName("");
         setNiche("");
         setIdeas(null);
         setProjectId(null);
         setSelectedIdeaIdx(null);
-        router.push(`/dashboard/${projectId}`);
+        setTimeout(() => {
+          setShowIdeaCelebration(false);
+          router.push(`/dashboard/${projectId}`);
+        }, 1500);
       } else {
-        alert(data.error ?? "Failed to start build");
+        toast(data.error ?? "Failed to start build", "error");
       }
     } catch {
-      alert("Network error — please try again");
+      toast("Network error — please try again", "error");
     } finally {
       setSelecting(false);
       setSelectedIdeaIdx(null);
@@ -179,7 +199,13 @@ export function NewProjectSheet({
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Researching...
+                  {generationStep === 1
+                    ? "Starting..."
+                    : generationStep === 2
+                    ? "Researching market..."
+                    : generationStep === 3
+                    ? "Generating ideas..."
+                    : "Finalizing..."}
                 </>
               ) : (
                 <>
@@ -188,6 +214,38 @@ export function NewProjectSheet({
                 </>
               )}
             </Button>
+
+            {/* Progress stepper */}
+            {loading && (
+              <div className="mt-4 space-y-1.5">
+                {[
+                  { step: 1, label: "Initializing project" },
+                  { step: 2, label: "Researching market & competitors" },
+                  { step: 3, label: "Generating SaaS ideas" },
+                ].map(({ step, label }) => (
+                  <div key={step} className="flex items-center gap-2">
+                    <div
+                      className={`h-1.5 w-1.5 rounded-full shrink-0 transition-colors ${
+                        generationStep >= step ? "bg-violet-500" : "bg-zinc-700"
+                      }`}
+                    />
+                    <span
+                      className={`text-[11px] transition-colors ${
+                        generationStep >= step ? "text-zinc-300" : "text-zinc-600"
+                      }`}
+                    >
+                      {label}
+                    </span>
+                    {generationStep === step && (
+                      <Loader2 className="h-2.5 w-2.5 animate-spin text-violet-500 ml-auto" />
+                    )}
+                  </div>
+                ))}
+                <p className="text-[10px] text-zinc-600 mt-2">
+                  This takes 30–120 seconds. Grab a coffee! ☕
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           // ─── Step 2: Pick an idea ───
@@ -242,6 +300,15 @@ export function NewProjectSheet({
             >
               Cancel
             </button>
+          </div>
+        )}
+
+        {/* Idea selection celebration overlay */}
+        {showIdeaCelebration && (
+          <div className="absolute inset-0 bg-zinc-950/90 flex flex-col items-center justify-center z-10 animate-in fade-in duration-200">
+            <div className="text-5xl mb-4 animate-bounce">🚀</div>
+            <p className="text-zinc-100 font-semibold text-sm">Building your SaaS!</p>
+            <p className="text-zinc-500 text-xs mt-1">Redirecting to your project...</p>
           </div>
         )}
       </SheetContent>
