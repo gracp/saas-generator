@@ -38,11 +38,18 @@ export function NewProjectSheet({
   const [selectedIdeaIdx, setSelectedIdeaIdx] = useState<number | null>(null);
   const [selecting, setSelecting] = useState(false);
   const { toast } = useToast();
+  const [generationStep, setGenerationStep] = useState(0);
 
   async function handleGenerate() {
     if (!name.trim()) return;
     setLoading(true);
     setIdeas(null);
+    setGenerationStep(1);
+
+    // Cycle through steps to show progress
+    const stepInterval = setInterval(() => {
+      setGenerationStep((s) => Math.min(s + 1, 3));
+    }, 4000);
 
     try {
       const res = await fetch("/api/generate", {
@@ -54,6 +61,9 @@ export function NewProjectSheet({
         }),
       });
 
+      clearInterval(stepInterval);
+      setGenerationStep(4);
+
       const data = await res.json();
       if (data.success && data.ideas) {
         setIdeas(data.ideas);
@@ -61,10 +71,13 @@ export function NewProjectSheet({
       } else {
         toast(data.error ?? "Generation failed", "error");
         setLoading(false);
+        setGenerationStep(0);
       }
     } catch {
+      clearInterval(stepInterval);
       toast("Network error — please try again", "error");
       setLoading(false);
+      setGenerationStep(0);
     }
   }
 
@@ -181,7 +194,13 @@ export function NewProjectSheet({
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Researching...
+                  {generationStep === 1
+                    ? "Starting..."
+                    : generationStep === 2
+                    ? "Researching market..."
+                    : generationStep === 3
+                    ? "Generating ideas..."
+                    : "Finalizing..."}
                 </>
               ) : (
                 <>
@@ -190,6 +209,38 @@ export function NewProjectSheet({
                 </>
               )}
             </Button>
+
+            {/* Progress stepper */}
+            {loading && (
+              <div className="mt-4 space-y-1.5">
+                {[
+                  { step: 1, label: "Initializing project" },
+                  { step: 2, label: "Researching market & competitors" },
+                  { step: 3, label: "Generating SaaS ideas" },
+                ].map(({ step, label }) => (
+                  <div key={step} className="flex items-center gap-2">
+                    <div
+                      className={`h-1.5 w-1.5 rounded-full shrink-0 transition-colors ${
+                        generationStep >= step ? "bg-violet-500" : "bg-zinc-700"
+                      }`}
+                    />
+                    <span
+                      className={`text-[11px] transition-colors ${
+                        generationStep >= step ? "text-zinc-300" : "text-zinc-600"
+                      }`}
+                    >
+                      {label}
+                    </span>
+                    {generationStep === step && (
+                      <Loader2 className="h-2.5 w-2.5 animate-spin text-violet-500 ml-auto" />
+                    )}
+                  </div>
+                ))}
+                <p className="text-[10px] text-zinc-600 mt-2">
+                  This takes 30–120 seconds. Grab a coffee! ☕
+                </p>
+              </div>
+            )}
           </div>
         ) : (
           // ─── Step 2: Pick an idea ───
